@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Dashboard from "./dashboard";
-import { Metric } from "./models/metric";
+import { MetricResponse } from "./models/metric";
 
-export default function DashboardContainer({ initialMetrics }: { initialMetrics: Metric }) {
-  const [metrics, setMetrics] = useState(initialMetrics);
+export default function DashboardContainer({ initialMetrics }: { initialMetrics: MetricResponse }) {
+  const [metrics, setMetrics] = useState<MetricResponse>(initialMetrics);
 
   // Função para buscar os dados
   async function fetchMetrics() {

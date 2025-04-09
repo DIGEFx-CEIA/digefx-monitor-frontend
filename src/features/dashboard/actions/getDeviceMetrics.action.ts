@@ -1,5 +1,5 @@
 import { createServerAction, ServerActionError } from "@/libs/action-error-handler.hof";
-import { Metric } from "../models/metric";
+import { MetricResponse } from "../models/metric";
 import fetchWithServerAuth from "@/utils/fetchWithServerAuth";
 
 export const getDeviceMetricsAction = createServerAction(async () => {
@@ -15,6 +15,6 @@ export const getDeviceMetricsAction = createServerAction(async () => {
         throw new ServerActionError(error.message);
       }
     
-      const data = await response.json() as Metric;
+      const data = await response.json() as MetricResponse;
       return data;
 })

@@ -1,18 +1,33 @@
 import { Button, Container, Grid2 as Grid, Paper, Typography } from "@mui/material";
-import { Metric } from "./models/metric";
+import { MetricResponse } from "./models/metric";
 import Image from "next/image";
-import { CameraAlt, DeviceThermostat, Memory, Settings, VideoSettings, Wifi } from "@mui/icons-material";
+import { CameraAlt, DeviceThermostat, Memory, Settings, VideoSettings, Wifi, SdStorage, Public } from "@mui/icons-material";
 import { convertMinutesToHoursMinutes } from "@/utils/time.utils";
 interface IMetric {
-    metrics: Metric;
+    metrics: MetricResponse;
 }
 export default function Dashboard({ metrics }: IMetric) {
+    type StatusColor = "success" | "warning" | "error";
 
+    const getStatusColor = (value: number, type: string): StatusColor => {
+        const colorThresholds: Record<string, { success: number; warning: number }> = {
+            cpu: { success: 40, warning: 75 },
+            ram: { success: 50, warning: 80 },
+            disk: { success: 60, warning: 80 },
+            temperature: { success: 60, warning: 80 },
+        };
+    
+        const thresholds = colorThresholds[type] || { success: 50, warning: 75 };
+    
+        if (value < thresholds.success) return "success";
+        if (value < thresholds.warning) return "warning";
+        return "error";
+    };
     return (
         <Container sx={{ mt: 8 }}>
             <Typography variant="h2">Dashboard</Typography>
             <Typography variant="subtitle1">Power Supply Management and Status</Typography>
-            <Typography variant="subtitle1">Device ID: {metrics.device_id}</Typography>
+            <Typography variant="subtitle1">Device ID: {metrics.device_status.device_id}</Typography>
             <Grid container spacing={4}
                 alignItems={"flex-start"} mt={3}>
                 <Grid size={4}>
@@ -22,8 +37,8 @@ export default function Dashboard({ metrics }: IMetric) {
                                 alignItems: "flex-start",
                             }} p={2}>
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
-                                <Typography variant="h3" >{new Date(metrics.timestamp).toLocaleTimeString()}</Typography>
-                                <Typography variant="h6" >{new Date(metrics.timestamp).toLocaleDateString()}</Typography>
+                                <Typography variant="h3" >{new Date(metrics.device_status.timestamp).toLocaleTimeString()}</Typography>
+                                <Typography variant="h6" >{new Date(metrics.device_status.timestamp).toLocaleDateString()}</Typography>
                                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Last Synchronization</Typography>
                             </Grid>
                             <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
@@ -39,8 +54,8 @@ export default function Dashboard({ metrics }: IMetric) {
                                 alignItems: "flex-start",
                             }} p={2}>
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
-                                <Typography variant="h3" color={metrics.battery_voltage <= metrics.min_voltage ? "error" : "primary"}>{`${metrics.battery_voltage} V`}</Typography>
-                                <Typography variant="h6" >{`Min. Voltage: ${metrics.min_voltage} V`}</Typography>
+                                <Typography variant="h3" color={metrics.device_status.battery_voltage <= metrics.device_status.min_voltage ? "error" : "primary"}>{`${metrics.device_status.battery_voltage} V`}</Typography>
+                                <Typography variant="h6" >{`Min. Voltage: ${metrics.device_status.min_voltage} V`}</Typography>
                                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"} >Batery Voltage</Typography>
                             </Grid>
                             <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
@@ -58,10 +73,10 @@ export default function Dashboard({ metrics }: IMetric) {
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant="h3">Ignition</Typography>
                                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>is</Typography>
-                                <Typography variant="h6" color={metrics.ignition === "On" ? "primary" : "error"}>{metrics.ignition}</Typography>
+                                <Typography variant="h6" color={metrics.device_status.ignition === "On" ? "primary" : "error"}>{metrics.device_status.ignition}</Typography>
                             </Grid>
                             <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                                <Image src={metrics.ignition === "On" ? "/car-key-on.png" : "/car-key-off.png"} width={110} height={110} alt="Time Sync" />
+                                <Image src={metrics.device_status.ignition === "On" ? "/car-key-on.png" : "/car-key-off.png"} width={110} height={110} alt="Time Sync" />
                             </Grid>
                         </Grid>
                     </Paper>
@@ -74,29 +89,29 @@ export default function Dashboard({ metrics }: IMetric) {
                             }} p={2}>
                             <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant="h3">Cameras</Typography>
-                                <Typography variant="h6" color={metrics.relay1_status === "On" ? "primary" : "error"}>{metrics.relay1_status}</Typography>
-                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Power Timer: {convertMinutesToHoursMinutes(metrics.relay1_time)} </Typography>
+                                <Typography variant="h6" color={metrics.device_status.relay1_status === "On" ? "primary" : "error"}>{metrics.device_status.relay1_status}</Typography>
+                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Power Timer: {convertMinutesToHoursMinutes(metrics.device_status.relay1_time)} </Typography>
                             </Grid>
                             <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                                <Image src={metrics.relay1_status === "On" ? "/camera-on.png" : "/camera-off.png"} width={110} height={110} alt="Time Sync" />
+                                <Image src={metrics.device_status.relay1_status === "On" ? "/camera-on.png" : "/camera-off.png"} width={110} height={110} alt="Time Sync" />
                             </Grid>
                         </Grid>
                         <Grid container spacing={2} p={2}>
                             <Grid size={9}>
                                 <Grid container spacing={2}>
-                                    <Grid size={3} direction={"row"} justifyItems={"center"}>
+                                    <Grid size={6} direction={"row"} justifyItems={"center"}>
                                         <CameraAlt color="success" />
                                         <Typography variant="subtitle2">Cam1</Typography>
                                     </Grid>
-                                    <Grid size={3} direction={"row"} justifyItems={"center"}>
+                                    <Grid size={6} direction={"row"} justifyItems={"center"}>
                                         <CameraAlt color="success" />
                                         <Typography variant="subtitle2">Cam2</Typography>
                                     </Grid>
-                                    <Grid size={3} direction={"row"} justifyItems={"center"}>
+                                    <Grid size={6} direction={"row"} justifyItems={"center"}>
                                         <CameraAlt color="success" />
                                         <Typography variant="subtitle2">Cam3</Typography>
                                     </Grid>
-                                    <Grid size={3} direction={"row"} justifyItems={"center"}>
+                                    <Grid size={6} direction={"row"} justifyItems={"center"}>
                                         <CameraAlt color="error" />
                                         <Typography variant="subtitle2">Cam4</Typography>
                                     </Grid>
@@ -118,27 +133,45 @@ export default function Dashboard({ metrics }: IMetric) {
                             }} p={2}>
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant="h3">Computer</Typography>
-                                <Typography variant="h6" color={metrics.relay2_status === "On" ? "primary" : "error"}>{metrics.relay2_status}</Typography>
-                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Power Timer: {convertMinutesToHoursMinutes(metrics.relay2_time)} </Typography>
+                                <Typography variant="h6" color={metrics.device_status.relay2_status === "On" ? "primary" : "error"}>{metrics.device_status.relay2_status}</Typography>
+                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Power Timer: {convertMinutesToHoursMinutes(metrics.device_status.relay2_time)} </Typography>
                             </Grid>
                             <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                                <Image src={metrics.relay2_status === "On" ? "/pc-on.png" : "/pc-off.png"} width={110} height={110} alt="Time Sync" />
+                                <Image src={metrics.device_status.relay2_status === "On" ? "/pc-on.png" : "/pc-off.png"} width={110} height={110} alt="Time Sync" />
                             </Grid>
                         </Grid>
                         <Grid container spacing={2} p={2}>
                             <Grid size={9}>
                                 <Grid container spacing={2}>
                                     <Grid size={4} direction={"row"} justifyItems={"center"}>
-                                        <Memory color="warning" />
-                                        <Typography variant="subtitle2">CPU: 35%</Typography>
+                                        <Memory color={getStatusColor(metrics.host_status.cpu_usage, "cpu")} />
+                                        <Typography variant="subtitle2" ml={1}>
+                                            CPU: {metrics.host_status.cpu_usage.toFixed(1)}%
+                                        </Typography>
                                     </Grid>
                                     <Grid size={4} direction={"row"} justifyItems={"center"}>
-                                        <DeviceThermostat color="success" />
-                                        <Typography variant="subtitle2">Temp: 50 ºC</Typography>
+                                        <Memory color={getStatusColor(metrics.host_status.ram_usage, "ram")} />
+                                        <Typography variant="subtitle2" ml={1}>
+                                            RAM: {metrics.host_status.ram_usage.toFixed(1)}%
+                                        </Typography>
+                                    </Grid>
+                                    <Grid size={4} direction={"row"} justifyItems={"center"}>
+                                        <SdStorage color={getStatusColor(metrics.host_status.disk_usage, "disk")} />
+                                        <Typography variant="subtitle2" ml={1}>
+                                            DISK: {metrics.host_status.disk_usage.toFixed(1)}%
+                                        </Typography>
+                                    </Grid>
+                                    <Grid size={4} direction={"row"} justifyItems={"center"}>
+                                        <DeviceThermostat color={getStatusColor(metrics.host_status.temperature, "temperature")} />
+                                        <Typography variant="subtitle2">Temp: {metrics.host_status.temperature.toFixed(1)} ºC</Typography>
                                     </Grid>
                                     <Grid size={4} direction={"row"} justifyItems={"center"}>
                                         <Wifi color="success" />
-                                        <Typography>192.168.0.1</Typography>
+                                        <Typography>{metrics.host_status.host_ip}</Typography>
+                                    </Grid>
+                                    <Grid size={4} direction={"row"} justifyItems={"center"}>
+                                        <Public color={metrics.host_status.online ? "success" : "error"} />
+                                        <Typography>{metrics.host_status.online ? metrics.host_status.public_ip : "Offline"}</Typography>
                                     </Grid>
                                 </Grid>
                             </Grid>

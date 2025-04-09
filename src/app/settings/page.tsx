@@ -13,10 +13,10 @@ export default async function Page() {
   
   const {value: initialMetrics} = metricsResult;
   const initialSettings: Settings = {
-    device_id:initialMetrics.device_id,
-    min_voltage:initialMetrics.min_voltage,
-    relay1_time:initialMetrics.relay1_time,
-    relay2_time:initialMetrics.relay2_time
+    device_id:initialMetrics.device_status.device_id,
+    min_voltage:initialMetrics.device_status.min_voltage,
+    relay1_time:initialMetrics.device_status.relay1_time,
+    relay2_time:initialMetrics.device_status.relay2_time,
   }
 
   return <SettingsForm initialSettings={initialSettings}/>;
