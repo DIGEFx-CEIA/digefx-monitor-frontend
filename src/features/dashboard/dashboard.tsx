@@ -4,11 +4,24 @@ import Image from "next/image";
 import { CameraAlt, DeviceThermostat, Memory, Settings, VideoSettings, Wifi, SdStorage, Public } from "@mui/icons-material";
 import { convertMinutesToHoursMinutes } from "@/utils/time.utils";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 interface IMetric {
     metrics: MetricResponse;
 }
 export default function Dashboard({ metrics }: IMetric) {
     type StatusColor = "success" | "warning" | "error";
+    const [localTime, setLocalTime] = useState("");
+    const [localDate, setLocalDate] = useState("");
+
+    useEffect(() => {
+        const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        console.log(userTimeZone);
+        const date = new Date(metrics.device_status.timestamp);
+        console.log(date);
+        setLocalTime(date.toLocaleTimeString("pt-BR", { timeZone: userTimeZone }));
+        setLocalDate(date.toLocaleDateString("pt-BR", { timeZone: userTimeZone }));
+    }, [metrics.device_status.timestamp]);
+
 
     const getStatusColor = (value: number, type: string): StatusColor => {
         const colorThresholds: Record<string, { success: number; warning: number }> = {
@@ -38,8 +51,8 @@ export default function Dashboard({ metrics }: IMetric) {
                                 alignItems: "flex-start",
                             }} p={2}>
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
-                                <Typography variant="h4" >{new Date(metrics.device_status.timestamp).toLocaleTimeString()}</Typography>
-                                <Typography variant="h6" >{new Date(metrics.device_status.timestamp).toLocaleDateString()}</Typography>
+                                <Typography variant="h4">{localTime}</Typography>
+                                <Typography variant="h6">{localDate}</Typography>
                                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Last Synchronization</Typography>
                             </Grid>
                             <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
