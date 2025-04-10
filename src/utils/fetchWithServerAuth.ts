@@ -3,10 +3,10 @@ import { RedirectType, redirect } from "next/navigation";
 
 export default async function fetchWithServerAuth(input: string | URL | Request, init?: RequestInit & { accessToken?: string; }): Promise<Response> {
 	init ??= {};
-	init.headers = init.headers ?? {};
+	init.headers = init.headers instanceof Headers ? Object.fromEntries(init.headers.entries()) : init.headers ?? {};
 
 	if (!(init.body instanceof FormData) && !Object.keys(init.headers).includes("Content-Type")) {
-		init.headers["Content-Type"] = "application/json";
+		(init.headers as Record<string, string>)["Content-Type"] = "application/json";
 	}
 
 	if (!Object.keys(init.headers).includes("Authorization")) {

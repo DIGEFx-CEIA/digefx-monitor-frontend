@@ -1,6 +1,7 @@
 "use client";
 
 import { createTheme, type PaletteOptions } from "@mui/material";
+import { PaletteColorOptions, PaletteColor } from '@mui/material/styles';
 import { Inter } from "next/font/google";
 
 const interFont = Inter({
@@ -8,6 +9,21 @@ const interFont = Inter({
 	style: ["normal"],
 	subsets: ["latin", "latin-ext"],
 });
+
+declare module '@mui/material/styles' {
+	interface Palette {
+		navbar?: PaletteColor;
+	}
+	interface PaletteOptions {
+		navbar?: PaletteColorOptions;
+	}
+}
+
+declare module '@mui/material/AppBar' {
+	interface AppBarPropsColorOverrides {
+		navbar: true;
+	}
+  }
 
 const palette: PaletteOptions = {
 	mode: "dark",
@@ -76,9 +92,9 @@ export const MuiTheme = createTheme({
 				},
 				sx: {
 					"& .MuiInputBase-root.Mui-disabled fieldset.MuiOutlinedInput-notchedOutline":
-						{
-							borderStyle: "dashed",
-						},
+					{
+						borderStyle: "dashed",
+					},
 				},
 			},
 		},

@@ -4,6 +4,22 @@ import {
     type NextAuthOptions,
 } from "next-auth";
 
+declare module "next-auth" {
+    interface User {
+        access_token?: string;
+    }
+
+    interface Session {
+        user?: {
+            name?: string | null;
+            email?: string | null;
+            image?: string | null;
+            id?: string;
+        };
+        accessToken?: string;
+    }
+}
+
 const API_URL = process.env.API_URL;
 
 const credentialsProvider = CredentialsProvider({
@@ -49,9 +65,11 @@ export const authOptions: NextAuthOptions = {
         },
         async session({ session, token }) {
             if (token) {
-                session.user.name = token.name;
-                session.user.id = token.userId;
-                session.accessToken = token.accessToken;
+                if (session.user) {
+                    session.user.name = token.name;
+                    session.user.id = token.userId as string;
+                    session.accessToken = token.accessToken as string | undefined;
+                }
             }
             return session;
         }
