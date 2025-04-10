@@ -1,6 +1,7 @@
 export type MetricResponse = {
     device_status: DeviceMetric;
     host_status: HostMetric;
+    camera_status: CameraMetric;
 }
 
 export type DeviceMetric = {
@@ -23,5 +24,17 @@ export type HostMetric = {
     disk_usage: number;
     temperature: number;
     online: boolean;
+    timestamp: Date
+}
+
+export type CameraMetric = {
+    camera1_ip?: string;
+    camera2_ip?: string;
+    camera3_ip?: string;
+    camera4_ip?: string;
+    camera1_connected: boolean;
+    camera2_connected: boolean;
+    camera3_connected: boolean;
+    camera4_connected: boolean;
     timestamp: Date
 }

@@ -3,6 +3,7 @@ import { MetricResponse } from "./models/metric";
 import Image from "next/image";
 import { CameraAlt, DeviceThermostat, Memory, Settings, VideoSettings, Wifi, SdStorage, Public } from "@mui/icons-material";
 import { convertMinutesToHoursMinutes } from "@/utils/time.utils";
+import Link from "next/link";
 interface IMetric {
     metrics: MetricResponse;
 }
@@ -37,7 +38,7 @@ export default function Dashboard({ metrics }: IMetric) {
                                 alignItems: "flex-start",
                             }} p={2}>
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
-                                <Typography variant="h3" >{new Date(metrics.device_status.timestamp).toLocaleTimeString()}</Typography>
+                                <Typography variant="h4" >{new Date(metrics.device_status.timestamp).toLocaleTimeString()}</Typography>
                                 <Typography variant="h6" >{new Date(metrics.device_status.timestamp).toLocaleDateString()}</Typography>
                                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Last Synchronization</Typography>
                             </Grid>
@@ -99,28 +100,50 @@ export default function Dashboard({ metrics }: IMetric) {
                         <Grid container spacing={2} p={2}>
                             <Grid size={9}>
                                 <Grid container spacing={2}>
-                                    <Grid size={6} direction={"row"} justifyItems={"center"}>
-                                        <CameraAlt color="success" />
-                                        <Typography variant="subtitle2">Cam1</Typography>
-                                    </Grid>
-                                    <Grid size={6} direction={"row"} justifyItems={"center"}>
-                                        <CameraAlt color="success" />
-                                        <Typography variant="subtitle2">Cam2</Typography>
-                                    </Grid>
-                                    <Grid size={6} direction={"row"} justifyItems={"center"}>
-                                        <CameraAlt color="success" />
-                                        <Typography variant="subtitle2">Cam3</Typography>
-                                    </Grid>
-                                    <Grid size={6} direction={"row"} justifyItems={"center"}>
-                                        <CameraAlt color="error" />
-                                        <Typography variant="subtitle2">Cam4</Typography>
-                                    </Grid>
+                                    {metrics.camera_status.camera1_ip && <Grid size={6} direction={"row"} justifyItems={"center"}>
+                                        {metrics.camera_status.camera1_connected?(
+                                        <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_1`} target="_blank" rel="noopener noreferrer">
+                                            <CameraAlt color="success" />
+                                        </Link>): (
+                                            <CameraAlt color="error" />
+                                        )}
+                                        <Typography variant="subtitle2">Cam1: {metrics.camera_status.camera1_ip}</Typography>
+                                    </Grid>}
+                                    {metrics.camera_status.camera2_ip && <Grid size={6} direction={"row"} justifyItems={"center"}>
+                                        {metrics.camera_status.camera2_connected?(
+                                        <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_2`} target="_blank" rel="noopener noreferrer">
+                                            <CameraAlt color="success" />
+                                        </Link>): (
+                                            <CameraAlt color="error" />
+                                        )}
+                                        <Typography variant="subtitle2">Cam2: {metrics.camera_status.camera2_ip}</Typography>
+                                    </Grid>}
+                                    {metrics.camera_status.camera3_ip && <Grid size={6} direction={"row"} justifyItems={"center"}>
+                                        {metrics.camera_status.camera3_connected?(
+                                        <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_3`} target="_blank" rel="noopener noreferrer">
+                                            <CameraAlt color="success" />
+                                        </Link>): (
+                                            <CameraAlt color="error" />
+                                        )}
+                                        <Typography variant="subtitle2">Cam3: {metrics.camera_status.camera3_ip}</Typography>
+                                    </Grid>}
+                                    {metrics.camera_status.camera4_ip && <Grid size={6} direction={"row"} justifyItems={"center"}>
+                                        {metrics.camera_status.camera4_connected?(
+                                        <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_4`} target="_blank" rel="noopener noreferrer">
+                                            <CameraAlt color="success" />
+                                        </Link>): (
+                                            <CameraAlt color="error" />
+                                        )}
+                                        <Typography variant="subtitle2">Cam4: {metrics.camera_status.camera4_ip}</Typography>
+                                    </Grid>}
                                 </Grid>
                             </Grid>
                             <Grid size={3} alignSelf={"flex-end"} display={"flex"} justifyContent={"flex-end"}>
-                                <Button variant="outlined" startIcon={<VideoSettings />}>
-                                    Access
-                                </Button>
+                                <Link href={`http://${metrics.host_status.public_ip}:5000`} target="_blank" rel="noopener noreferrer">
+                                    <Button variant="outlined" startIcon={<VideoSettings />}>
+                                        Access
+                                    </Button>
+                                </Link>
                             </Grid>
                         </Grid>
                     </Paper>
