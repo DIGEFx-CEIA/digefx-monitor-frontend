@@ -48,6 +48,14 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
         return "error";
     };
 
+    const paperStyle = {
+        width: '100%',
+        mb: isMobile ? 2 : 0,
+        height: '100%', 
+        display: 'flex',
+        flexDirection: 'column' as 'column'
+    };
+
     return (
         <Container sx={{ mt: 8, pb: 4 }}>
             <Typography variant={isMobile ? "h3" : "h2"} gutterBottom>Dashboard</Typography>
@@ -56,12 +64,13 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
             
             <VehicleMap coordinates={coordinates} />
 
-            <Grid container spacing={{xs: 2, sm: 4}} alignItems={"flex-start"} mt={3}>
-                <Grid size={{md: 12, lg: 12, xl: 4}}>
-                    <Paper elevation={8} sx={{ mb: isMobile ? 2 : 0 }}>
+            <Grid container spacing={{xs: 2, sm: 4}} alignItems="stretch" mt={3}>
+                <Grid size={{xs: 12, md: 12, lg: 12, xl: 4}}>
+                    <Paper elevation={8} sx={paperStyle}>
                         <Grid container spacing={2}
                             sx={{
                                 alignItems: "flex-start",
+                                flexGrow: 1
                             }} p={2}>
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h5" : "h4"}>{localTime}</Typography>
@@ -74,11 +83,12 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
                         </Grid>
                     </Paper>
                 </Grid>
-                <Grid size={{md: 12, lg: 6, xl: 4}}>
-                    <Paper elevation={8} sx={{ mb: isMobile ? 2 : 0 }}>
+                <Grid size={{xs: 12, md: 12, lg: 6, xl: 4}}>
+                    <Paper elevation={8} sx={paperStyle}>
                         <Grid container spacing={2}
                             sx={{
                                 alignItems: "flex-start",
+                                flexGrow: 1
                             }} p={2}>
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h4" : "h3"} color={metrics.device_status.battery_voltage <= metrics.device_status.min_voltage ? "error" : "primary"}>{`${metrics.device_status.battery_voltage} V`}</Typography>
@@ -91,11 +101,12 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
                         </Grid>
                     </Paper>
                 </Grid>
-                <Grid size={{md: 12, lg: 6, xl: 4}}>
-                    <Paper elevation={8} sx={{ mb: isMobile ? 2 : 0 }}>
+                <Grid size={{xs: 12, md: 12, lg: 6, xl: 4}}>
+                    <Paper elevation={8} sx={paperStyle}>
                         <Grid container spacing={2}
                             sx={{
                                 alignItems: "flex-start",
+                                flexGrow: 1
                             }} p={2}>
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h4" : "h3"}>Ignition</Typography>
@@ -108,11 +119,12 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
                         </Grid>
                     </Paper>
                 </Grid>
-                <Grid size={{md: 12, lg: 6}}>
-                    <Paper elevation={8} sx={{ mb: isMobile ? 2 : 0 }}>
+                <Grid size={{xs: 12, md: 12, lg: 6}}>
+                    <Paper elevation={8} sx={paperStyle}>
                         <Grid container spacing={2}
                             sx={{
                                 alignItems: "flex-start",
+                                flexGrow: 1
                             }} p={2}>
                             <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h4" : "h3"}>Cameras</Typography>
@@ -126,7 +138,7 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
                         <Grid container spacing={2} p={2}>
                             <Grid size={9}>
                                 <Grid container spacing={2}>
-                                    {metrics.camera_status.camera1_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"}>
+                                    {metrics.camera_status.camera1_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
                                         {metrics.camera_status.camera1_connected?(
                                         <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_1`} target="_blank" rel="noopener noreferrer">
                                             <CameraAlt color="success" />
@@ -135,7 +147,7 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
                                         )}
                                         <Typography variant="subtitle2" sx={{ ml: 1, display: "inline-block" }}>Cam1: {metrics.camera_status.camera1_ip}</Typography>
                                     </Grid>}
-                                    {metrics.camera_status.camera2_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"}>
+                                    {metrics.camera_status.camera2_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
                                         {metrics.camera_status.camera2_connected?(
                                         <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_2`} target="_blank" rel="noopener noreferrer">
                                             <CameraAlt color="success" />
@@ -144,7 +156,7 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
                                         )}
                                         <Typography variant="subtitle2" sx={{ ml: 1, display: "inline-block" }}>Cam2: {metrics.camera_status.camera2_ip}</Typography>
                                     </Grid>}
-                                    {metrics.camera_status.camera3_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"}>
+                                    {metrics.camera_status.camera3_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
                                         {metrics.camera_status.camera3_connected?(
                                         <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_3`} target="_blank" rel="noopener noreferrer">
                                             <CameraAlt color="success" />
@@ -153,7 +165,7 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
                                         )}
                                         <Typography variant="subtitle2" sx={{ ml: 1, display: "inline-block" }}>Cam3: {metrics.camera_status.camera3_ip}</Typography>
                                     </Grid>}
-                                    {metrics.camera_status.camera4_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"}>
+                                    {metrics.camera_status.camera4_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
                                         {metrics.camera_status.camera4_connected?(
                                         <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_4`} target="_blank" rel="noopener noreferrer">
                                             <CameraAlt color="success" />
@@ -174,11 +186,12 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
                         </Grid>
                     </Paper>
                 </Grid>
-                <Grid size={{md: 12, lg: 6}}>
-                    <Paper elevation={8}>
+                <Grid size={{xs: 12, md: 12, lg: 6}}>
+                    <Paper elevation={8} sx={paperStyle}>
                         <Grid container spacing={2}
                             sx={{
                                 alignItems: "flex-start",
+                                flexGrow: 1
                             }} p={2}>
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h4" : "h3"}>Computer</Typography>
