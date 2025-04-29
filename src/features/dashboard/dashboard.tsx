@@ -53,7 +53,7 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
         mb: isMobile ? 2 : 0,
         height: '100%', 
         display: 'flex',
-        flexDirection: 'column' as 'column'
+        flexDirection: 'column' as const
     };
 
     return (
