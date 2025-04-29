@@ -5,10 +5,28 @@ import { CameraAlt, DeviceThermostat, Memory, Settings, VideoSettings, Wifi, SdS
 import { convertMinutesToHoursMinutes } from "@/utils/time.utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
 interface IMetric {
     metrics: MetricResponse;
+    coordinates: {
+        latitude: number;
+        longitude: number;
+        velocidade: number;
+        horario: string;
+    }[];
 }
-export default function Dashboard({ metrics }: IMetric) {
+
+// Configuração do ícone do veículo
+const vehicleIcon = L.icon({
+    iconUrl: '/car.webp',
+    iconSize: [24, 40],
+    iconAnchor: [12, 20],
+});
+
+export default function Dashboard({ metrics, coordinates }: IMetric) {
     type StatusColor = "success" | "warning" | "error";
     const [localTime, setLocalTime] = useState("");
     const [localDate, setLocalDate] = useState("");
@@ -42,6 +60,56 @@ export default function Dashboard({ metrics }: IMetric) {
             <Typography variant="h2">Dashboard</Typography>
             <Typography variant="subtitle1">Power Supply Management and Status</Typography>
             <Typography variant="subtitle1">Device ID: {metrics.device_status.device_id}</Typography>
+            
+            {/* Mapa */}
+            <Paper elevation={8} sx={{ mt: 3, height: '400px', width: '100%', position: 'relative' }}>
+                <MapContainer
+                    center={coordinates.length > 0 ? [coordinates[coordinates.length - 1].latitude, coordinates[coordinates.length - 1].longitude] : [-23.5505, -46.6333]}
+                    zoom={15}
+                    style={{ height: '100%', width: '100%' }}
+                >
+                    <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    />
+                    {coordinates.length > 0 && (
+                        <>
+                            <Polyline
+                                positions={coordinates.map(coord => [coord.latitude, coord.longitude])}
+                                color="blue"
+                            />
+                            <Marker
+                                position={[coordinates[coordinates.length - 1].latitude, coordinates[coordinates.length - 1].longitude]}
+                                icon={vehicleIcon}
+                            />
+                        </>
+                    )}
+                </MapContainer>
+                {coordinates.length > 0 && (
+                    <Paper 
+                        elevation={8} 
+                        sx={{ 
+                            position: 'absolute', 
+                            top: 10, 
+                            right: 10, 
+                            padding: 2,
+                            backgroundColor: 'rgba(12, 12, 12, 0.8)',
+                            zIndex: 1000
+                        }}
+                    >
+                        <Typography variant="h6" gutterBottom>
+                            Vehicle Status
+                        </Typography>
+                        <Typography variant="body1">
+                            Speed: {coordinates[coordinates.length - 1].velocidade} km/h
+                        </Typography>
+                        <Typography variant="body1">
+                            Last Update: {new Date(coordinates[coordinates.length - 1].horario).toLocaleString('pt-BR')}
+                        </Typography>
+                    </Paper>
+                )}
+            </Paper>
+
             <Grid container spacing={4}
                 alignItems={"flex-start"} mt={3}>
                 <Grid size={4}>
