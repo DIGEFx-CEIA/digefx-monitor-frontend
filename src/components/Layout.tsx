@@ -34,10 +34,6 @@ export function Layout({ children }: LayoutProps) {
           p={{ xs: 2, sm: 3 }}
           bgcolor={"background.default"}
           sx={{
-            marginLeft: {
-              xs: 0,
-              md: sidebarOpen ? '240px' : 0
-            },
             width: {
               xs: '100%',
               md: sidebarOpen ? 'calc(100% - 240px)' : '100%'
