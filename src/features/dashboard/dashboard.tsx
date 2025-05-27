@@ -59,61 +59,81 @@ export default function Dashboard({ metrics, locations }: IMetric) {
             <VehicleMap locations={locations} />
 
             <Grid container spacing={{xs: 2, sm: 4}} alignItems="stretch" mt={3}>
-                <Grid size={{xs: 12, md: 12, lg: 12, xl: 4}}>
+                <Grid size={{xs: 12, sm: 6, md: 6, xl: 3}}>
                     <Paper elevation={8} sx={paperStyle}>
-                        <Grid container spacing={2}
+                        <Grid container spacing={1}
                             sx={{
                                 alignItems: "flex-start",
                                 flexGrow: 1
                             }} p={2}>
-                            <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
+                            <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h5" : "h4"}>{localTime}</Typography>
                                 <Typography variant="h6">{localDate}</Typography>
                                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Last Synchronization</Typography>
                             </Grid>
-                            <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                                <Image src={"/time-sync.png"} width={isMobile ? 80 : 110} height={isMobile ? 80 : 110} alt="Time Sync" />
+                            <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
+                                <Image src={"/time-sync.png"} width={isMobile ? 80 : 60} height={isMobile ? 80 : 60} alt="Time Sync" />
                             </Grid>
                         </Grid>
                     </Paper>
                 </Grid>
-                <Grid size={{xs: 12, md: 12, lg: 6, xl: 4}}>
+                <Grid size={{xs: 12, sm: 6, md: 6, xl: 3}}>
                     <Paper elevation={8} sx={paperStyle}>
-                        <Grid container spacing={2}
+                        <Grid container spacing={1}
                             sx={{
                                 alignItems: "flex-start",
                                 flexGrow: 1
                             }} p={2}>
-                            <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
+                            <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h4" : "h3"} color={metrics.device_status.battery_voltage <= metrics.device_status.min_voltage ? "error" : "primary"}>{`${metrics.device_status.battery_voltage} V`}</Typography>
-                                <Typography variant="h6" >{`Min. Voltage: ${metrics.device_status.min_voltage} V`}</Typography>
+                                <Typography variant={isMobile ? "h6" : "body1"} >{`Min. Voltage: ${metrics.device_status.min_voltage} V`}</Typography>
                                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"} >Batery Voltage</Typography>
                             </Grid>
-                            <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                                <Image src={"/car-battery.png"} width={isMobile ? 80 : 100} height={isMobile ? 80 : 100} alt="Car Battery" />
+                            <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
+                                <Image src={"/car-battery.png"} width={isMobile ? 80 : 60} height={isMobile ? 80 : 60} alt="Car Battery" />
                             </Grid>
                         </Grid>
                     </Paper>
                 </Grid>
-                <Grid size={{xs: 12, md: 12, lg: 6, xl: 4}}>
+                <Grid size={{xs: 12, sm: 6, md: 6, xl: 3}}>
                     <Paper elevation={8} sx={paperStyle}>
-                        <Grid container spacing={2}
+                        <Grid container spacing={1}
                             sx={{
                                 alignItems: "flex-start",
                                 flexGrow: 1
                             }} p={2}>
-                            <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
+                            <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
+                                <Typography variant={isMobile ? "h4" : "h3"}>GPS</Typography>
+                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>is</Typography>
+                                <Typography variant="h6" color={metrics.device_status.gps_status === "Valid" ? "primary" : "error"}>
+                                    {metrics.device_status.gps_status === "Valid" ? "Active" : "Inactive"}
+                                </Typography>
+                            </Grid>
+                            <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
+                                <Image src={metrics.device_status.gps_status === "Valid" ? "/gps-on.webp" : "/gps-off.png"} width={isMobile ? 80 : 60} height={isMobile ? 80 : 60} alt="Ignition" />
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Grid>
+                <Grid size={{xs: 12, sm: 6, md: 6, xl: 3}}>
+                    <Paper elevation={8} sx={paperStyle}>
+                        <Grid container spacing={1}
+                            sx={{
+                                alignItems: "flex-start",
+                                flexGrow: 1
+                            }} p={2}>
+                            <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h4" : "h3"}>Ignition</Typography>
                                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>is</Typography>
                                 <Typography variant="h6" color={metrics.device_status.ignition === "On" ? "primary" : "error"}>{metrics.device_status.ignition}</Typography>
                             </Grid>
-                            <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                                <Image src={metrics.device_status.ignition === "On" ? "/car-key-on.png" : "/car-key-off.png"} width={isMobile ? 80 : 110} height={isMobile ? 80 : 110} alt="Ignition" />
+                            <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
+                                <Image src={metrics.device_status.ignition === "On" ? "/car-key-on.png" : "/car-key-off.png"} width={isMobile ? 80 : 60} height={isMobile ? 80 : 60} alt="Ignition" />
                             </Grid>
                         </Grid>
                     </Paper>
                 </Grid>
-                <Grid size={{xs: 12, md: 12, lg: 6}}>
+                <Grid size={{xs: 12, md: 12, xl: 6}}>
                     <Paper elevation={8} sx={paperStyle}>
                         <Grid container spacing={2}
                             sx={{
@@ -180,7 +200,7 @@ export default function Dashboard({ metrics, locations }: IMetric) {
                         </Grid>
                     </Paper>
                 </Grid>
-                <Grid size={{xs: 12, md: 12, lg: 6}}>
+                <Grid size={{xs: 12, md: 12, xl: 6}}>
                     <Paper elevation={8} sx={paperStyle}>
                         <Grid container spacing={2}
                             sx={{

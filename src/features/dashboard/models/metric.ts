@@ -13,6 +13,7 @@ export type DeviceMetric = {
     relay2_status: string;
     relay1_time: number;
     relay2_time: number;
+    gps_status: string;
     timestamp: Date
 }
 
