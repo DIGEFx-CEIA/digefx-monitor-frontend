@@ -6,18 +6,14 @@ import { convertMinutesToHoursMinutes } from "@/utils/time.utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import VehicleMap from "./components/vehicle-map";
+import { LocationData } from "./actions/getTodayLocations.action";
 
 interface IMetric {
     metrics: MetricResponse;
-    coordinates: {
-        latitude: number;
-        longitude: number;
-        velocidade: number;
-        horario: string;
-    }[];
+    locations: LocationData[];
 }
 
-export default function Dashboard({ metrics, coordinates }: IMetric) {
+export default function Dashboard({ metrics, locations }: IMetric) {
     type StatusColor = "success" | "warning" | "error";
     const [localTime, setLocalTime] = useState("");
     const [localDate, setLocalDate] = useState("");
@@ -26,9 +22,7 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
 
     useEffect(() => {
         const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        console.log(userTimeZone);
         const date = new Date(metrics.device_status.timestamp);
-        console.log(date);
         setLocalTime(date.toLocaleTimeString("pt-BR", { timeZone: userTimeZone }));
         setLocalDate(date.toLocaleDateString("pt-BR", { timeZone: userTimeZone }));
     }, [metrics.device_status.timestamp]);
@@ -62,7 +56,7 @@ export default function Dashboard({ metrics, coordinates }: IMetric) {
             <Typography variant="subtitle1">Power Supply Management and Status</Typography>
             <Typography variant="subtitle1" gutterBottom>Device ID: {metrics.device_status.device_id}</Typography>
             
-            <VehicleMap coordinates={coordinates} />
+            <VehicleMap locations={locations} />
 
             <Grid container spacing={{xs: 2, sm: 4}} alignItems="stretch" mt={3}>
                 <Grid size={{xs: 12, md: 12, lg: 12, xl: 4}}>

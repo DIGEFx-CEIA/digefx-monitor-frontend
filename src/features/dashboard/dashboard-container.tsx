@@ -3,17 +3,11 @@
 import { useState, useEffect } from "react";
 import Dashboard from "./dashboard";
 import { MetricResponse } from "./models/metric";
-
-export interface Coordinate {
-  latitude: number;
-  longitude: number;
-  velocidade: number;
-  horario: string;
-}
+import { LocationData, LocationResponse } from "./actions/getTodayLocations.action";
 
 export default function DashboardContainer({ initialMetrics }: { initialMetrics: MetricResponse }) {
   const [metrics, setMetrics] = useState<MetricResponse>(initialMetrics);
-  const [coordinates, setCoordinates] = useState<Coordinate[]>([]);
+  const [locations, setLocations] = useState<LocationData[]>([]);
 
   // Função para buscar os dados
   async function fetchMetrics() {
@@ -27,64 +21,33 @@ export default function DashboardContainer({ initialMetrics }: { initialMetrics:
     }
   }
 
-  // Função fictícia para buscar coordenadas
-  async function fetchCoordinates() {
-    // Ponto inicial: Santos
-    const startLat = -23.9608;
-    const startLng = -46.3339;
-    
-    // Ponto final: São Paulo
-    const endLat = -23.5505;
-    const endLng = -46.6333;
-    
-    // Número de pontos
-    const numPoints = 100;
-    
-    // Gerar pontos intermediários
-    const mockCoordinates: Coordinate[] = [];
-    
-    for (let i = 0; i < numPoints; i++) {
-      const progress = i / (numPoints - 1);
-      
-      // Interpolação linear entre os pontos
-      const lat = startLat + (endLat - startLat) * progress;
-      const lng = startLng + (endLng - startLng) * progress;
-      
-      // Adiciona alguma variação aleatória para simular um trajeto mais realista
-      const latVariation = (Math.random() - 0.5) * 0.01;
-      const lngVariation = (Math.random() - 0.5) * 0.01;
-      
-      // Velocidade simulada entre 40 e 100 km/h
-      const velocidade = 40 + Math.random() * 60;
-      
-      // Horário simulado (cada ponto a cada 1 minuto)
-      const horario = new Date();
-      horario.setMinutes(horario.getMinutes() - (numPoints - i));
-      
-      mockCoordinates.push({
-        latitude: lat + latVariation,
-        longitude: lng + lngVariation,
-        velocidade: Math.round(velocidade),
-        horario: horario.toISOString()
-      });
+  // Função para buscar localizações do dia atual
+  async function fetchTodayLocations() {
+    try {
+      const res = await fetch("/api/locations/today");
+      if (!res.ok) throw new Error("Falha ao buscar localizações");
+      const data: LocationResponse = await res.json();
+      setLocations(data.locations);
+    } catch (error) {
+      console.error("Erro ao buscar localizações:", error);
+      // Fallback para dados mock se a API falhar
+      setLocations([]);
     }
-    
-    setCoordinates(mockCoordinates);
   }
 
   useEffect(() => {
     // Define o polling para cada 30 segundos
     const interval = setInterval(() => {
       fetchMetrics();
-      fetchCoordinates();
+      fetchTodayLocations();
     }, 10000);
 
     // Busca os dados iniciais
-    fetchCoordinates();
+    fetchTodayLocations();
 
     // Limpa o intervalo ao desmontar o componente
     return () => clearInterval(interval);
   }, []);
 
-  return <Dashboard metrics={metrics} coordinates={coordinates} />;
+  return <Dashboard metrics={metrics} locations={locations} />;
 }

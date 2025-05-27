@@ -11,7 +11,6 @@ export default async function fetchWithServerAuth(input: string | URL | Request,
 
 	if (!Object.keys(init.headers).includes("Authorization")) {
 		const accessToken = init.accessToken || (await getInternalServerSession())?.accessToken;
-		console.log(accessToken);
 		init.headers = {
 			...init.headers,
 			Authorization: `Bearer ${accessToken}`
