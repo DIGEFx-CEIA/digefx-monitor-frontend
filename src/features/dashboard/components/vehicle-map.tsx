@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Paper, Typography } from "@mui/material";
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
-import L from 'leaflet';
+import L, { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { LocationData } from '../actions/getTodayLocations.action';
 
@@ -20,9 +20,16 @@ const vehicleIcon = L.icon({
 export default function VehicleMap({ locations }: VehicleMapProps) {
     const [mapLocations, setMapLocations] = useState<LocationData[]>([]);
     const [mapKey, setMapKey] = useState(0);
-
+    const [userLocation, setUserLocation] = useState<LatLngExpression | undefined>(undefined);
     // Atualiza as localizações do mapa quando as props mudarem
     useEffect(() => {
+        if (locations.length === 0) {
+           navigator.geolocation.getCurrentPosition(position => {
+            setUserLocation([position.coords.latitude, position.coords.longitude]);
+           }, error => {
+            setUserLocation(L.latLng(-23.5505, -46.6333));
+           });
+        }
         setMapLocations(locations);
         // Força re-renderização do mapa incrementando a key
         setMapKey(prev => prev + 1);
@@ -40,7 +47,7 @@ export default function VehicleMap({ locations }: VehicleMapProps) {
         <Paper elevation={8} sx={{ mt: 3, height: '400px', width: '100%', position: 'relative' }}>
             <MapContainer
                 key={mapKey} // Força re-renderização quando a key muda
-                center={latestLocation ? [latestLocation.latitude, latestLocation.longitude] : [-23.5505, -46.6333]}
+                center={latestLocation ? [latestLocation.latitude, latestLocation.longitude] : userLocation}
                 zoom={15}
                 style={{ height: '100%', width: '100%' }}
             >
