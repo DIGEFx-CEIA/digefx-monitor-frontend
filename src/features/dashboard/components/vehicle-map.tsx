@@ -24,17 +24,23 @@ export default function VehicleMap({ locations }: VehicleMapProps) {
     
     // Atualiza as localizações do mapa quando as props mudarem
     useEffect(() => {
-        if (locations.length === 0) {
-           navigator.geolocation.getCurrentPosition(position => {
+        navigator.geolocation.getCurrentPosition(position => {
             setUserLocation([position.coords.latitude, position.coords.longitude]);
-           }, () => {
+        }, () => {
             setUserLocation(L.latLng(-23.5505, -46.6333));
-           });
-        }
+        });
         setMapLocations(locations);
         // Força re-renderização do mapa incrementando a key
         setMapKey(prev => prev + 1);
     }, [locations]);
+
+    useEffect(() => {
+        navigator.geolocation.getCurrentPosition(position => {
+            setUserLocation([position.coords.latitude, position.coords.longitude]);
+        }, () => {
+            setUserLocation(L.latLng(-23.5505, -46.6333));
+        });
+    }, []);
 
     // Ordena as localizações por timestamp (mais antigas primeiro para o trajeto)
     const sortedLocations = [...mapLocations].sort((a, b) => 

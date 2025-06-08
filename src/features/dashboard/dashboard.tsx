@@ -105,8 +105,8 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
                     flexGrow: 1
                 }} p={2}>
               <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
-                <Typography variant={isMobile ? "h5" : "h4"}>{localTime}</Typography>
-                <Typography variant="h6">{localDate}</Typography>
+                <Typography variant={isMobile ? "h4" : "h3"}>{localTime}</Typography>
+                <Typography variant={isMobile ? "h6" : "body1"}>{localDate}</Typography>
                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Last Synchronization</Typography>
               </Grid>
               <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
@@ -143,7 +143,7 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
               <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                 <Typography variant={isMobile ? "h4" : "h3"}>GPS</Typography>
                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>is</Typography>
-                <Typography variant="h6" color={metrics.device_status?.gps_status === "Valid" ? "primary" : "error"}>
+                <Typography variant={isMobile ? "h6" : "body1"} color={metrics.device_status?.gps_status === "Valid" ? "primary" : "error"}>
                   {metrics.device_status?.gps_status === "Valid" ? "Active" : "Inactive"}
                 </Typography>
               </Grid>
@@ -163,7 +163,7 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
               <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                 <Typography variant={isMobile ? "h4" : "h3"}>Ignition</Typography>
                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>is</Typography>
-                <Typography variant="h6" color={metrics.device_status?.ignition === "On" ? "primary" : "error"}>{metrics.device_status?.ignition ?? "Off"}</Typography>
+                <Typography variant={isMobile ? "h6" : "body1"} color={metrics.device_status?.ignition === "On" ? "primary" : "error"}>{metrics.device_status?.ignition ?? "Off"}</Typography>
               </Grid>
               <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
                 <Image src={metrics.device_status?.ignition === "On" ? "/car-key-on.png" : "/car-key-off.png"} width={isMobile ? 80 : 60} height={isMobile ? 80 : 60} alt="Ignition" />
