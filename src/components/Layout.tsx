@@ -12,16 +12,49 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Garantir que o componente seja hidratado corretamente
+  useEffect(() => {
+    setMounted(true);
+    setSidebarOpen(!isMobile);
+  }, [isMobile]);
 
   // Fechar a sidebar automaticamente quando mudar para visualização móvel
   useEffect(() => {
-    setSidebarOpen(!isMobile);
-  }, [isMobile]);
+    if (mounted) {
+      setSidebarOpen(!isMobile);
+    }
+  }, [isMobile, mounted]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  // Não renderizar até estar montado no cliente
+  if (!mounted) {
+    return (
+      <Box display="flex" flexDirection="column" height="100vh">
+        <Navbar toggleSidebar={toggleSidebar} />
+        <Box display="flex" flexGrow={1} position="relative" marginTop="64px">
+          <Sidebar open={false} isMobile={true} toggleSidebar={toggleSidebar} />
+          <Box 
+            component="main" 
+            flexGrow={1} 
+            p={{ xs: 2, sm: 3 }}
+            bgcolor={"background.default"}
+            sx={{
+              width: '100%',
+              transition: 'margin 0.2s ease-in-out, width 0.2s ease-in-out'
+            }}
+          >
+            {children}
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box display="flex" flexDirection="column" height="100vh">

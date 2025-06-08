@@ -7,10 +7,11 @@ import { SessionProvider } from "next-auth/react";
 
 export const Providers = (props: Readonly<{ children: React.ReactNode }>) => {
 	return (
-		<ThemeProvider theme={MuiTheme}>
-			<CssBaseline enableColorScheme />
-			<SessionProvider>{props.children}
-			</SessionProvider>
-		</ThemeProvider>
+		<SessionProvider>
+			<ThemeProvider theme={MuiTheme}>
+				<CssBaseline enableColorScheme />
+				{props.children}
+			</ThemeProvider>
+		</SessionProvider>
 	);
 };

@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Providers } from "./providers";
 import { Layout } from "@/components/Layout";
 import { Metadata } from "next";
+import EmotionRegistry from "@/libs/EmotionRegistry";
 
 export const metadata: Metadata = {
   title: "Digefx Monitor",
@@ -16,11 +17,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <Providers>
-          <Layout>
-            {children}
-          </Layout>
-        </Providers>
+        <EmotionRegistry>
+          <Providers>
+            <Layout>
+              {children}
+            </Layout>
+          </Providers>
+        </EmotionRegistry>
       </body>
     </html>
   );
