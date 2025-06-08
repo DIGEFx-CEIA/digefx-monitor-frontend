@@ -22,10 +22,10 @@ export default function Dashboard({ metrics, locations }: IMetric) {
 
     useEffect(() => {
         const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const date = new Date(metrics.device_status.timestamp);
+        const date = new Date(metrics.device_status?.timestamp ?? new Date());
         setLocalTime(date.toLocaleTimeString("pt-BR", { timeZone: userTimeZone }));
         setLocalDate(date.toLocaleDateString("pt-BR", { timeZone: userTimeZone }));
-    }, [metrics.device_status.timestamp]);
+    }, [metrics.device_status?.timestamp]);
 
     const getStatusColor = (value: number, type: string): StatusColor => {
         const colorThresholds: Record<string, { success: number; warning: number }> = {
@@ -54,7 +54,7 @@ export default function Dashboard({ metrics, locations }: IMetric) {
         <Container sx={{ mt: 8, pb: 4 }}>
             <Typography variant={isMobile ? "h3" : "h2"} gutterBottom>Dashboard</Typography>
             <Typography variant="subtitle1">Power Supply Management and Status</Typography>
-            <Typography variant="subtitle1" gutterBottom>Device ID: {metrics.device_status.device_id}</Typography>
+            <Typography variant="subtitle1" gutterBottom>Device ID: {metrics.device_status?.device_id ?? "Not Configured"}</Typography>
             
             <VehicleMap locations={locations} />
 
@@ -85,8 +85,8 @@ export default function Dashboard({ metrics, locations }: IMetric) {
                                 flexGrow: 1
                             }} p={2}>
                             <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
-                                <Typography variant={isMobile ? "h4" : "h3"} color={metrics.device_status.battery_voltage <= metrics.device_status.min_voltage ? "error" : "primary"}>{`${metrics.device_status.battery_voltage} V`}</Typography>
-                                <Typography variant={isMobile ? "h6" : "body1"} >{`Min. Voltage: ${metrics.device_status.min_voltage} V`}</Typography>
+                                <Typography variant={isMobile ? "h4" : "h3"} color={metrics.device_status?.battery_voltage <= metrics.device_status?.min_voltage ? "error" : "primary"}>{`${metrics.device_status?.battery_voltage ?? 0} V`}</Typography>
+                            <Typography variant={isMobile ? "h6" : "body1"} >{`Min. Voltage: ${metrics.device_status?.min_voltage ?? 0} V`}</Typography>
                                 <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"} >Batery Voltage</Typography>
                             </Grid>
                             <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
@@ -104,13 +104,13 @@ export default function Dashboard({ metrics, locations }: IMetric) {
                             }} p={2}>
                             <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h4" : "h3"}>GPS</Typography>
-                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>is</Typography>
-                                <Typography variant="h6" color={metrics.device_status.gps_status === "Valid" ? "primary" : "error"}>
-                                    {metrics.device_status.gps_status === "Valid" ? "Active" : "Inactive"}
-                                </Typography>
+                            <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>is</Typography>
+                            <Typography variant="h6" color={metrics.device_status?.gps_status === "Valid" ? "primary" : "error"}>
+                                {metrics.device_status?.gps_status === "Valid" ? "Active" : "Inactive"}
+                            </Typography>
                             </Grid>
                             <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                                <Image src={metrics.device_status.gps_status === "Valid" ? "/gps-on.webp" : "/gps-off.png"} width={isMobile ? 80 : 60} height={isMobile ? 80 : 60} alt="Ignition" />
+                                <Image src={metrics.device_status?.gps_status === "Valid" ? "/gps-on.webp" : "/gps-off.png"} width={isMobile ? 80 : 60} height={isMobile ? 80 : 60} alt="Ignition" />
                             </Grid>
                         </Grid>
                     </Paper>
@@ -124,11 +124,11 @@ export default function Dashboard({ metrics, locations }: IMetric) {
                             }} p={2}>
                             <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h4" : "h3"}>Ignition</Typography>
-                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>is</Typography>
-                                <Typography variant="h6" color={metrics.device_status.ignition === "On" ? "primary" : "error"}>{metrics.device_status.ignition}</Typography>
+                            <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>is</Typography>
+                                <Typography variant="h6" color={metrics.device_status?.ignition === "On" ? "primary" : "error"}>{metrics.device_status?.ignition ?? "Off"}</Typography>
                             </Grid>
                             <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                                <Image src={metrics.device_status.ignition === "On" ? "/car-key-on.png" : "/car-key-off.png"} width={isMobile ? 80 : 60} height={isMobile ? 80 : 60} alt="Ignition" />
+                                <Image src={metrics.device_status?.ignition === "On" ? "/car-key-on.png" : "/car-key-off.png"} width={isMobile ? 80 : 60} height={isMobile ? 80 : 60} alt="Ignition" />
                             </Grid>
                         </Grid>
                     </Paper>
@@ -142,17 +142,17 @@ export default function Dashboard({ metrics, locations }: IMetric) {
                             }} p={2}>
                             <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h4" : "h3"}>Cameras</Typography>
-                                <Typography variant="h6" color={metrics.device_status.relay1_status === "On" ? "primary" : "error"}>{metrics.device_status.relay1_status}</Typography>
-                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Power Timer: {convertMinutesToHoursMinutes(metrics.device_status.relay1_time)} </Typography>
+                                <Typography variant="h6" color={metrics.device_status?.relay1_status === "On" ? "primary" : "error"}>{metrics.device_status?.relay1_status ?? "Off"}</Typography>
+                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Power Timer: {convertMinutesToHoursMinutes(metrics.device_status?.relay1_time ?? 0)} </Typography>
                             </Grid>
                             <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                                <Image src={metrics.device_status.relay1_status === "On" ? "/camera-on.png" : "/camera-off.png"} width={isMobile ? 80 : 110} height={isMobile ? 80 : 110} alt="Camera" />
+                                <Image src={metrics.device_status?.relay1_status === "On" ? "/camera-on.png" : "/camera-off.png"} width={isMobile ? 80 : 110} height={isMobile ? 80 : 110} alt="Camera" />
                             </Grid>
                         </Grid>
                         <Grid container spacing={2} p={2}>
                             <Grid size={9}>
                                 <Grid container spacing={2}>
-                                    {metrics.camera_status.camera1_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
+                                    {metrics.camera_status?.camera1_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
                                         {metrics.camera_status.camera1_connected?(
                                         <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_1`} target="_blank" rel="noopener noreferrer">
                                             <CameraAlt color="success" />
@@ -161,7 +161,7 @@ export default function Dashboard({ metrics, locations }: IMetric) {
                                         )}
                                         <Typography variant="subtitle2" sx={{ ml: 1, display: "inline-block" }}>Cam1: {metrics.camera_status.camera1_ip}</Typography>
                                     </Grid>}
-                                    {metrics.camera_status.camera2_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
+                                    {metrics.camera_status?.camera2_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
                                         {metrics.camera_status.camera2_connected?(
                                         <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_2`} target="_blank" rel="noopener noreferrer">
                                             <CameraAlt color="success" />
@@ -170,7 +170,7 @@ export default function Dashboard({ metrics, locations }: IMetric) {
                                         )}
                                         <Typography variant="subtitle2" sx={{ ml: 1, display: "inline-block" }}>Cam2: {metrics.camera_status.camera2_ip}</Typography>
                                     </Grid>}
-                                    {metrics.camera_status.camera3_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
+                                    {metrics.camera_status?.camera3_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
                                         {metrics.camera_status.camera3_connected?(
                                         <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_3`} target="_blank" rel="noopener noreferrer">
                                             <CameraAlt color="success" />
@@ -179,7 +179,7 @@ export default function Dashboard({ metrics, locations }: IMetric) {
                                         )}
                                         <Typography variant="subtitle2" sx={{ ml: 1, display: "inline-block" }}>Cam3: {metrics.camera_status.camera3_ip}</Typography>
                                     </Grid>}
-                                    {metrics.camera_status.camera4_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
+                                    {metrics.camera_status?.camera4_ip && <Grid size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
                                         {metrics.camera_status.camera4_connected?(
                                         <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_4`} target="_blank" rel="noopener noreferrer">
                                             <CameraAlt color="success" />
@@ -209,11 +209,11 @@ export default function Dashboard({ metrics, locations }: IMetric) {
                             }} p={2}>
                             <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                                 <Typography variant={isMobile ? "h4" : "h3"}>Computer</Typography>
-                                <Typography variant="h6" color={metrics.device_status.relay2_status === "On" ? "primary" : "error"}>{metrics.device_status.relay2_status}</Typography>
-                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Power Timer: {convertMinutesToHoursMinutes(metrics.device_status.relay2_time)} </Typography>
+                                <Typography variant="h6" color={metrics.device_status?.relay2_status === "On" ? "primary" : "error"}>{metrics.device_status?.relay2_status ?? "Off"}</Typography>
+                                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Power Timer: {convertMinutesToHoursMinutes(metrics.device_status?.relay2_time ?? 0)} </Typography>
                             </Grid>
                             <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                                <Image src={metrics.device_status.relay2_status === "On" ? "/pc-on.png" : "/pc-off.png"} width={isMobile ? 80 : 110} height={isMobile ? 80 : 110} alt="Computer" />
+                                <Image src={metrics.device_status?.relay2_status === "On" ? "/pc-on.png" : "/pc-off.png"} width={isMobile ? 80 : 110} height={isMobile ? 80 : 110} alt="Computer" />
                             </Grid>
                         </Grid>
                         <Grid container spacing={2} p={2}>
