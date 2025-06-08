@@ -17,30 +17,33 @@ const vehicleIcon = L.icon({
     iconAnchor: [12, 20],
 });
 
+// Posição padrão (São Paulo) como fallback
+const DEFAULT_POSITION: LatLngExpression = [-23.5505, -46.6333];
+
 export default function VehicleMap({ locations }: VehicleMapProps) {
     const [mapLocations, setMapLocations] = useState<LocationData[]>([]);
     const [mapKey, setMapKey] = useState(0);
-    const [userLocation, setUserLocation] = useState<LatLngExpression | undefined>(undefined);
+    const [userLocation, setUserLocation] = useState<LatLngExpression>(DEFAULT_POSITION);
     
+    // Obtém a localização do usuário na inicialização
+    useEffect(() => {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setUserLocation([position.coords.latitude, position.coords.longitude]);
+            }, 
+            (error) => {
+                console.warn('Geolocation failed, using default position:', error);
+                setUserLocation(DEFAULT_POSITION);
+            }
+        );
+    }, []);
+
     // Atualiza as localizações do mapa quando as props mudarem
     useEffect(() => {
-        navigator.geolocation.getCurrentPosition(position => {
-            setUserLocation([position.coords.latitude, position.coords.longitude]);
-        }, () => {
-            setUserLocation(L.latLng(-23.5505, -46.6333));
-        });
         setMapLocations(locations);
         // Força re-renderização do mapa incrementando a key
         setMapKey(prev => prev + 1);
     }, [locations]);
-
-    useEffect(() => {
-        navigator.geolocation.getCurrentPosition(position => {
-            setUserLocation([position.coords.latitude, position.coords.longitude]);
-        }, () => {
-            setUserLocation(L.latLng(-23.5505, -46.6333));
-        });
-    }, []);
 
     // Ordena as localizações por timestamp (mais antigas primeiro para o trajeto)
     const sortedLocations = [...mapLocations].sort((a, b) => 
@@ -50,11 +53,16 @@ export default function VehicleMap({ locations }: VehicleMapProps) {
     // Localização mais recente para centralizar o mapa
     const latestLocation = sortedLocations[sortedLocations.length - 1];
     
+    // Define o centro do mapa: location mais recente ou posição do usuário
+    const mapCenter: LatLngExpression = latestLocation 
+        ? [latestLocation.latitude, latestLocation.longitude] 
+        : userLocation;
+    
     return (
         <Paper elevation={8} sx={{ mt: 3, height: '400px', width: '100%', position: 'relative' }}>
             <MapContainer
                 key={mapKey} // Força re-renderização quando a key muda
-                center={latestLocation ? [latestLocation.latitude, latestLocation.longitude] : userLocation}
+                center={mapCenter}
                 zoom={15}
                 style={{ height: '100%', width: '100%' }}
             >
