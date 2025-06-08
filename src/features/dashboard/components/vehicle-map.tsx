@@ -21,12 +21,13 @@ export default function VehicleMap({ locations }: VehicleMapProps) {
     const [mapLocations, setMapLocations] = useState<LocationData[]>([]);
     const [mapKey, setMapKey] = useState(0);
     const [userLocation, setUserLocation] = useState<LatLngExpression | undefined>(undefined);
+    
     // Atualiza as localizações do mapa quando as props mudarem
     useEffect(() => {
         if (locations.length === 0) {
            navigator.geolocation.getCurrentPosition(position => {
             setUserLocation([position.coords.latitude, position.coords.longitude]);
-           }, error => {
+           }, () => {
             setUserLocation(L.latLng(-23.5505, -46.6333));
            });
         }
