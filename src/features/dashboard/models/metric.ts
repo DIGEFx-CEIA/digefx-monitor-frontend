@@ -1,7 +1,6 @@
 export type MetricResponse = {
     device_status: DeviceMetric;
     host_status: HostMetric;
-    camera_status: CameraMetric;
 }
 
 export type DeviceMetric = {
@@ -28,14 +27,19 @@ export type HostMetric = {
     timestamp: Date
 }
 
-export type CameraMetric = {
-    camera1_ip?: string;
-    camera2_ip?: string;
-    camera3_ip?: string;
-    camera4_ip?: string;
-    camera1_connected: boolean;
-    camera2_connected: boolean;
-    camera3_connected: boolean;
-    camera4_connected: boolean;
-    timestamp: Date
+// New dynamic camera types
+export type CameraStatus = {
+    camera_id: number;
+    camera_name: string;
+    camera_ip: string;
+    camera_port: number;
+    is_connected: boolean;
+    last_ping_time?: string;
+    response_time_ms?: number;
+    timestamp: string;
+}
+
+export type CameraStatusResponse = {
+    statuses: CameraStatus[];
+    total_count: number;
 }

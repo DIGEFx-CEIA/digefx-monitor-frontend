@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Dashboard from "./dashboard";
-import { MetricResponse } from "./models/metric";
+import { MetricResponse, CameraStatusResponse } from "./models/metric";
 import { LocationData, LocationResponse } from "./actions/getTodayLocations.action";
 
 export default function DashboardContainer({ initialMetrics }: { initialMetrics: MetricResponse }) {
   const [metrics, setMetrics] = useState<MetricResponse>(initialMetrics);
   const [locations, setLocations] = useState<LocationData[]>([]);
+  const [cameraStatus, setCameraStatus] = useState<CameraStatusResponse>({ statuses: [], total_count: 0 });
 
   // Função para buscar os dados
   async function fetchMetrics() {
@@ -18,6 +19,19 @@ export default function DashboardContainer({ initialMetrics }: { initialMetrics:
       setMetrics(data);
     } catch (error) {
       console.error("Erro ao atualizar as métricas:", error);
+    }
+  }
+
+  // Função para buscar status das câmeras
+  async function fetchCameraStatus() {
+    try {
+      const res = await fetch("/api/cameras/status");
+      if (!res.ok) throw new Error("Falha ao buscar status das câmeras");
+      const data = await res.json();
+      setCameraStatus(data);
+    } catch (error) {
+      console.error("Erro ao buscar status das câmeras:", error);
+      setCameraStatus({ statuses: [], total_count: 0 });
     }
   }
 
@@ -36,18 +50,20 @@ export default function DashboardContainer({ initialMetrics }: { initialMetrics:
   }
 
   useEffect(() => {
-    // Define o polling para cada 30 segundos
+    // Define o polling para cada 10 segundos
     const interval = setInterval(() => {
       fetchMetrics();
+      fetchCameraStatus();
       fetchTodayLocations();
     }, 10000);
 
     // Busca os dados iniciais
+    fetchCameraStatus();
     fetchTodayLocations();
 
     // Limpa o intervalo ao desmontar o componente
     return () => clearInterval(interval);
   }, []);
 
-  return <Dashboard metrics={metrics} locations={locations} />;
+  return <Dashboard metrics={metrics} locations={locations} cameraStatus={cameraStatus} />;
 }
