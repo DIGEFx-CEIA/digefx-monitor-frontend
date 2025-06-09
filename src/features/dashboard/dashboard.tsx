@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 
 import { LocationData } from "./actions/getTodayLocations.action";
 import { MetricResponse, CameraStatusResponse } from "./models/metric";
+import { CamerasCard } from "./components/cameras-card";
 
 // Import do VehicleMap de forma dinâmica para evitar problemas de SSR com Leaflet
 const VehicleMap = dynamic(() => import("./components/vehicle-map"), {
@@ -171,51 +172,13 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
             </Grid>
           </Paper>
         </Grid>
-        <Grid size={{xs: 12, md: 12, xl: 6}}>
-          <Paper elevation={8} sx={paperStyle}>
-            <Grid container spacing={2}
-                sx={{
-                    alignItems: "flex-start",
-                    flexGrow: 1
-                }} p={2}>
-              <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
-                <Typography variant={isMobile ? "h4" : "h3"}>Cameras</Typography>
-                <Typography variant="h6" color={metrics.device_status?.relay1_status === "On" ? "primary" : "error"}>{metrics.device_status?.relay1_status ?? "Off"}</Typography>
-                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Power Timer: {convertMinutesToHoursMinutes(metrics.device_status?.relay1_time ?? 0)} </Typography>
-              </Grid>
-              <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                <Image src={metrics.device_status?.relay1_status === "On" ? "/camera-on.png" : "/camera-off.png"} width={isMobile ? 80 : 110} height={isMobile ? 80 : 110} alt="Camera" />
-              </Grid>
-            </Grid>
-            <Grid container spacing={2} p={2}>
-              <Grid size={9}>
-                <Grid container spacing={2}>
-                  {cameraStatus.statuses.map((camera) => (
-                    <Grid key={camera.camera_id} size={isMobile ? 12 : 6} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
-                      {camera.is_connected ? (
-                        <Link href={`http://${metrics.host_status.public_ip}:5000/#camera_${camera.camera_id}`} target="_blank" rel="noopener noreferrer">
-                          <CameraAlt color="success" />
-                        </Link>
-                      ) : (
-                        <CameraAlt color="error" />
-                      )}
-                      <Typography variant="subtitle2" sx={{ ml: 1, display: "inline-block" }}>
-                        {camera.camera_name}: {camera.camera_ip}
-                      </Typography>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Grid>
-              <Grid size={3} alignSelf={"flex-end"} display={"flex"} justifyContent={"flex-end"}>
-                <Link href={`http://${metrics.host_status.public_ip}:5000`} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outlined" startIcon={<VideoSettings />} size={isMobile ? "small" : "medium"}>
-                    Access
-                  </Button>
-                </Link>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
+        <CamerasCard 
+          deviceStatus={metrics.device_status}
+          cameraStatus={cameraStatus}
+          publicIp={metrics.host_status.public_ip}
+          showActions={true}
+        />
+        
         <Grid size={{xs: 12, md: 12, xl: 6}}>
           <Paper elevation={8} sx={paperStyle}>
             <Grid container spacing={2}
