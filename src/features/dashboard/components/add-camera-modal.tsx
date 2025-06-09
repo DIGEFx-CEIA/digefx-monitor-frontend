@@ -11,14 +11,11 @@ import {
   Box,
   Typography,
   Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   CircularProgress,
-  Chip,
-  OutlinedInput,
-  SelectChangeEvent
+  Switch,
+  FormControlLabel,
+  Paper,
+  Divider
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { createCameraAction, CreateCameraData } from "../actions/createCamera.action";
@@ -83,9 +80,13 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
     }
   };
 
-  const handleSelectChange = (event: SelectChangeEvent<string[]>) => {
-    const value = event.target.value;
-    handleChange('enabled_alerts', typeof value === 'string' ? value.split(',') : value);
+  const handleAlertToggle = (alertCode: string) => {
+    const isCurrentlyEnabled = formData.enabled_alerts.includes(alertCode);
+    const newEnabledAlerts = isCurrentlyEnabled
+      ? formData.enabled_alerts.filter(code => code !== alertCode)
+      : [...formData.enabled_alerts, alertCode];
+    
+    handleChange('enabled_alerts', newEnabledAlerts);
   };
 
   const validateForm = (): boolean => {
@@ -163,10 +164,13 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
     <Dialog 
       open={open} 
       onClose={handleClose}
-      maxWidth="sm"
+      maxWidth="md"
       fullWidth
       PaperProps={{
-        sx: { borderRadius: 2 }
+        sx: { 
+          borderRadius: 2,
+          bgcolor: 'background.paper'
+        }
       }}
     >
       <DialogTitle>
@@ -187,115 +191,159 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
           )}
 
           <Grid container spacing={3}>
-            {/* Camera Name */}
+            {/* Camera Configuration Section */}
             <Grid size={12}>
-              <TextField
-                label="Camera Name"
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                error={!!errors.name}
-                helperText={errors.name || "E.g. Main Camera, Entrance, Garage"}
-                fullWidth
-                disabled={loading}
-                placeholder="Enter camera identifier name"
-              />
+              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+                Camera Configuration
+              </Typography>
+              
+              <Grid container spacing={3}>
+                {/* Camera Name */}
+                <Grid size={12}>
+                  <TextField
+                    label="Camera Name"
+                    value={formData.name}
+                    onChange={(e) => handleChange('name', e.target.value)}
+                    error={!!errors.name}
+                    helperText={errors.name || "E.g. Driver Camera, Outside Camera, etc."}
+                    fullWidth
+                    disabled={loading}
+                    placeholder="Enter camera identifier name"
+                  />
+                </Grid>
+
+                {/* IP and Port */}
+                <Grid size={8}>
+                  <TextField
+                    label="IP Address"
+                    value={formData.ip_address}
+                    onChange={(e) => handleChange('ip_address', e.target.value)}
+                    error={!!errors.ip_address}
+                    helperText={errors.ip_address || "E.g. 192.168.1.100"}
+                    fullWidth
+                    disabled={loading}
+                    placeholder="0.0.0.0"
+                  />
+                </Grid>
+                <Grid size={4}>
+                  <TextField
+                    label="Port"
+                    value={formData.port}
+                    onChange={(e) => handleChange('port', e.target.value)}
+                    error={!!errors.port}
+                    helperText={errors.port}
+                    fullWidth
+                    disabled={loading}
+                    type="number"
+                    inputProps={{ min: 1, max: 65535 }}
+                  />
+                </Grid>
+              </Grid>
             </Grid>
 
-            {/* IP and Port */}
-            <Grid size={8}>
-              <TextField
-                label="IP Address"
-                value={formData.ip_address}
-                onChange={(e) => handleChange('ip_address', e.target.value)}
-                error={!!errors.ip_address}
-                helperText={errors.ip_address || "E.g. 192.168.1.100"}
-                fullWidth
-                disabled={loading}
-                placeholder="0.0.0.0"
-              />
-            </Grid>
-            <Grid size={4}>
-              <TextField
-                label="Port"
-                value={formData.port}
-                onChange={(e) => handleChange('port', e.target.value)}
-                error={!!errors.port}
-                helperText={errors.port}
-                fullWidth
-                disabled={loading}
-                type="number"
-                inputProps={{ min: 1, max: 65535 }}
-              />
-            </Grid>
-
-            {/* Alert Types - Multiple Select */}
+            {/* Alert Types Section */}
             <Grid size={12}>
-              <FormControl fullWidth disabled={loading || loadingAlertTypes}>
-                <InputLabel id="alert-types-label">Alert Types (Optional)</InputLabel>
-                <Select
-                  labelId="alert-types-label"
-                  multiple
-                  value={formData.enabled_alerts}
-                  onChange={handleSelectChange}
-                  input={<OutlinedInput label="Alert Types (Optional)" />}
-                  renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {selected.map((value) => {
-                        const alertType = alertTypes.find(type => type.code === value);
-                        return (
-                          <Chip 
-                            key={value} 
-                            label={alertType?.name || value}
-                            size="small"
+              <Divider sx={{ my: 2 }} />
+              
+              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Alert Configuration
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Enable alerts that this camera should monitor. You can change these settings later.
+              </Typography>
+
+              {loadingAlertTypes ? (
+                <Box display="flex" alignItems="center" justifyContent="center" py={4}>
+                  <CircularProgress size={24} sx={{ mr: 2 }} />
+                  <Typography variant="body2" color="text.secondary">
+                    Loading alert types...
+                  </Typography>
+                </Box>
+              ) : alertTypes.length > 0 ? (
+                <Box>
+                  <Grid container spacing={2}>
+                    {alertTypes.map((alertType) => {
+                      const isEnabled = formData.enabled_alerts.includes(alertType.code);
+                      
+                      return (
+                        <Grid key={alertType.code} size={6}>
+                          <Paper 
+                            elevation={2}
                             sx={{ 
-                              backgroundColor: '#1976d2',
-                              color: 'white',
-                              fontSize: '0.75rem'
+                              p: 2,
+                              border: '1px solid',
+                              borderColor: isEnabled ? 'primary.main' : 'divider',
+                              transition: 'all 0.2s ease-in-out',
+                              cursor: 'pointer',
+                              '&:hover': {
+                                borderColor: isEnabled ? 'primary.dark' : 'text.secondary',
+                                elevation: 4
+                              }
                             }}
-                          />
-                        );
-                      })}
+                            onClick={() => handleAlertToggle(alertType.code)}
+                          >
+                            <Box display="flex" alignItems="flex-start" gap={2}>
+                              <Switch
+                                checked={isEnabled}
+                                onChange={() => handleAlertToggle(alertType.code)}
+                                disabled={loading}
+                                color="primary"
+                                size="small"
+                              />
+                              <Box flex={1}>
+                                <Typography 
+                                  variant="subtitle2" 
+                                  sx={{ 
+                                    fontWeight: 'bold',
+                                    color: isEnabled ? 'primary.main' : 'text.primary',
+                                    mb: 0.5
+                                  }}
+                                >
+                                  {alertType.name}
+                                </Typography>
+                                {alertType.description && (
+                                  <Typography 
+                                    variant="caption" 
+                                    color="text.secondary"
+                                    sx={{ 
+                                      display: 'block',
+                                      lineHeight: 1.3
+                                    }}
+                                  >
+                                    {alertType.description}
+                                  </Typography>
+                                )}
+                              </Box>
+                            </Box>
+                          </Paper>
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+                  
+                  {formData.enabled_alerts.length > 0 && (
+                    <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                      <Typography variant="caption" color="text.secondary">
+                        Selected alerts: {formData.enabled_alerts.length} of {alertTypes.length}
+                      </Typography>
                     </Box>
                   )}
+                </Box>
+              ) : (
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    py: 4,
+                    textAlign: 'center',
+                    border: '2px dashed',
+                    borderColor: 'divider'
+                  }}
                 >
-                  {loadingAlertTypes ? (
-                    <MenuItem disabled>
-                      <CircularProgress size={16} sx={{ mr: 1 }} />
-                      Loading alert types...
-                    </MenuItem>
-                  ) : (
-                    alertTypes.map((alertType) => (
-                      <MenuItem key={alertType.code} value={alertType.code}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                          <Box
-                            sx={{
-                              width: 12,
-                              height: 12,
-                              borderRadius: '50%',
-                              backgroundColor: '#1976d2',
-                              mr: 1,
-                              flexShrink: 0
-                            }}
-                          />
-                          <Box sx={{ flexGrow: 1 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                              {alertType.name}
-                            </Typography>
-                            {alertType.description && (
-                              <Typography variant="caption" color="text.secondary">
-                                {alertType.description}
-                              </Typography>
-                            )}
-                          </Box>
-                        </Box>
-                      </MenuItem>
-                    ))
-                  )}
-                </Select>
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, ml: 1.5 }}>
-                  Select alert types to enable for this camera (leave empty to configure later)
-                </Typography>
-              </FormControl>
+                  <Typography variant="body2" color="text.secondary">
+                    No alert types available
+                  </Typography>
+                </Paper>
+              )}
             </Grid>
           </Grid>
         </Box>
