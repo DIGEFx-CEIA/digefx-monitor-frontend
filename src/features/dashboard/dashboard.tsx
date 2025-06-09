@@ -9,6 +9,7 @@ import { LocationData } from "./actions/getTodayLocations.action";
 import { MetricResponse, CameraStatusResponse } from "./models/metric";
 import { CamerasCard } from "./components/cameras-card";
 import { ComputerCard } from "./components/computer-card";
+import { AddCameraModal } from "./components/add-camera-modal";
 
 // Import do VehicleMap de forma dinâmica para evitar problemas de SSR com Leaflet
 const VehicleMap = dynamic(() => import("./components/vehicle-map"), {
@@ -30,6 +31,7 @@ interface IMetricWithCamera extends IMetric {
 export default function Dashboard({ metrics, locations, cameraStatus }: IMetricWithCamera) {
   const [localTime, setLocalTime] = useState("");
   const [localDate, setLocalDate] = useState("");
+  const [addCameraModalOpen, setAddCameraModalOpen] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -42,8 +44,14 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
 
   // Handler functions for camera management
   const handleAddCamera = () => {
-    console.log("Add camera clicked");
-    // TODO: Implement add camera modal
+    setAddCameraModalOpen(true);
+  };
+
+  const handleAddCameraSuccess = () => {
+    console.log("Camera added successfully!");
+    // TODO: Refresh camera list or show success message
+    // This could trigger a page refresh or update the camera status
+    window.location.reload(); // Temporary solution - ideally should update state
   };
 
   const handleEditCamera = (cameraId: number) => {
@@ -124,7 +132,7 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
               <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
                 <Typography variant={isMobile ? "h4" : "h3"} color={metrics.device_status?.battery_voltage <= metrics.device_status?.min_voltage ? "error" : "primary"}>{`${metrics.device_status?.battery_voltage ?? 0} V`}</Typography>
                 <Typography variant={isMobile ? "h6" : "body1"} >{`Min. Voltage: ${metrics.device_status?.min_voltage ?? 0} V`}</Typography>
-                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"} >Batery Voltage</Typography>
+                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"} >Battery Voltage</Typography>
               </Grid>
               <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
                 <Image src={"/car-battery.png"} width={isMobile ? 80 : 60} height={isMobile ? 80 : 60} alt="Car Battery" />
@@ -187,6 +195,13 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
           showActions={true}
         />
       </Grid>
+
+      {/* Add Camera Modal */}
+      <AddCameraModal
+        open={addCameraModalOpen}
+        onClose={() => setAddCameraModalOpen(false)}
+        onSuccess={handleAddCameraSuccess}
+      />
     </Container>
   );
 }

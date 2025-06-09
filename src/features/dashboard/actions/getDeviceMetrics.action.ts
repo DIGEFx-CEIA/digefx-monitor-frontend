@@ -13,8 +13,8 @@ export const getDeviceMetricsAction = createServerAction(async () => {
     if (!response.ok) {
         const error = await response.json();
         throw new ServerActionError(error.message);
-      }
-    
-      const data = await response.json() as MetricResponse;
-      return data;
+    }
+
+    const data = await response.json() as MetricResponse;
+    return data;
 })
