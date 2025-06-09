@@ -166,12 +166,7 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
       onClose={handleClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: { 
-          borderRadius: 2,
-          bgcolor: 'background.paper'
-        }
-      }}
+      sx={{ mt: 4 }}
     >
       <DialogTitle>
         <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
@@ -266,7 +261,7 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
                       const isEnabled = formData.enabled_alerts.includes(alertType.code);
                       
                       return (
-                        <Grid key={alertType.code} size={6}>
+                        <Grid key={alertType.code} size={{sm: 12, md: 6}} sx={{ width: '100%' }}>
                           <Paper 
                             elevation={2}
                             sx={{ 
