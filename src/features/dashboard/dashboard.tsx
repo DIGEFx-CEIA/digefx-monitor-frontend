@@ -1,7 +1,6 @@
 "use client";
 
-import { CameraAlt, DeviceThermostat, Memory, Public, SdStorage, Settings, VideoSettings, Wifi } from "@mui/icons-material";
-import { Button, Container, Grid2 as Grid, Link, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Container, Grid2 as Grid, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -9,6 +8,7 @@ import dynamic from "next/dynamic";
 import { LocationData } from "./actions/getTodayLocations.action";
 import { MetricResponse, CameraStatusResponse } from "./models/metric";
 import { CamerasCard } from "./components/cameras-card";
+import { ComputerCard } from "./components/computer-card";
 
 // Import do VehicleMap de forma dinâmica para evitar problemas de SSR com Leaflet
 const VehicleMap = dynamic(() => import("./components/vehicle-map"), {
@@ -28,7 +28,6 @@ interface IMetricWithCamera extends IMetric {
 }
 
 export default function Dashboard({ metrics, locations, cameraStatus }: IMetricWithCamera) {
-  type StatusColor = "success" | "warning" | "error";
   const [localTime, setLocalTime] = useState("");
   const [localDate, setLocalDate] = useState("");
 
@@ -41,26 +40,25 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
     flexDirection: "column",
   };
 
-  const getStatusColor = (value: number, type: string): StatusColor => {
-    const thresholds: Record<string, { warning: number; error: number }> = {
-      cpu: { warning: 70, error: 85 },
-      ram: { warning: 80, error: 90 },
-      disk: { warning: 85, error: 95 },
-      temperature: { warning: 60, error: 70 }
-    };
-
-    const threshold = thresholds[type];
-    if (!threshold) return "success";
-
-    if (value >= threshold.error) return "error";
-    if (value >= threshold.warning) return "warning";
-    return "success";
+  // Handler functions for camera management
+  const handleAddCamera = () => {
+    console.log("Add camera clicked");
+    // TODO: Implement add camera modal
   };
 
-  const convertMinutesToHoursMinutes = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours}h ${remainingMinutes}m`;
+  const handleEditCamera = (cameraId: number) => {
+    console.log("Edit camera:", cameraId);
+    // TODO: Implement edit camera modal
+  };
+
+  const handleDeleteCamera = (cameraId: number) => {
+    console.log("Delete camera:", cameraId);
+    // TODO: Implement delete camera confirmation
+  };
+
+  const handleManageAlerts = (cameraId: number) => {
+    console.log("Manage alerts for camera:", cameraId);
+    // TODO: Implement alert management modal
   };
 
   // Atualiza a data e hora local a cada segundo
@@ -176,68 +174,18 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
           deviceStatus={metrics.device_status}
           cameraStatus={cameraStatus}
           publicIp={metrics.host_status.public_ip}
+          onAddCamera={handleAddCamera}
+          onEditCamera={handleEditCamera}
+          onDeleteCamera={handleDeleteCamera}
+          onManageAlerts={handleManageAlerts}
           showActions={true}
         />
         
-        <Grid size={{xs: 12, md: 12, xl: 6}}>
-          <Paper elevation={8} sx={paperStyle}>
-            <Grid container spacing={2}
-                sx={{
-                    alignItems: "flex-start",
-                    flexGrow: 1
-                }} p={2}>
-              <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
-                <Typography variant={isMobile ? "h4" : "h3"}>Computer</Typography>
-                <Typography variant="h6" color={metrics.device_status?.relay2_status === "On" ? "primary" : "error"}>{metrics.device_status?.relay2_status ?? "Off"}</Typography>
-                <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>Power Timer: {convertMinutesToHoursMinutes(metrics.device_status?.relay2_time ?? 0)} </Typography>
-              </Grid>
-              <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-                <Image src={metrics.device_status?.relay2_status === "On" ? "/pc-on.png" : "/pc-off.png"} width={isMobile ? 80 : 110} height={isMobile ? 80 : 110} alt="Computer" />
-              </Grid>
-            </Grid>
-            <Grid container spacing={2} p={2}>
-              <Grid size={9}>
-                <Grid container spacing={2}>
-                  <Grid size={isMobile ? 6 : 4} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
-                    <Memory color={getStatusColor(metrics.host_status.cpu_usage, "cpu")} />
-                    <Typography variant="subtitle2" ml={1}>
-                      CPU: {metrics.host_status.cpu_usage.toFixed(1)}%
-                    </Typography>
-                  </Grid>
-                  <Grid size={isMobile ? 6 : 4} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
-                    <Memory color={getStatusColor(metrics.host_status.ram_usage, "ram")} />
-                    <Typography variant="subtitle2" ml={1}>
-                      RAM: {metrics.host_status.ram_usage.toFixed(1)}%
-                    </Typography>
-                  </Grid>
-                  <Grid size={isMobile ? 6 : 4} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
-                    <SdStorage color={getStatusColor(metrics.host_status.disk_usage, "disk")} />
-                    <Typography variant="subtitle2" ml={1}>
-                      DISK: {metrics.host_status.disk_usage.toFixed(1)}%
-                    </Typography>
-                  </Grid>
-                  <Grid size={isMobile ? 6 : 4} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
-                    <DeviceThermostat color={getStatusColor(metrics.host_status.temperature, "temperature")} />
-                    <Typography variant="subtitle2" ml={1}>Temp: {metrics.host_status.temperature.toFixed(1)} ºC</Typography>
-                  </Grid>
-                  <Grid size={isMobile ? 6 : 4} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
-                    <Wifi color="success" />
-                    <Typography variant="subtitle2" ml={1}>{metrics.host_status.host_ip}</Typography>
-                  </Grid>
-                  <Grid size={isMobile ? 6 : 4} direction={"row"} justifyItems={"center"} display="flex" alignItems="center">
-                    <Public color={metrics.host_status.online ? "success" : "error"} />
-                    <Typography variant="subtitle2" ml={1}>{metrics.host_status.online ? metrics.host_status.public_ip : "Offline"}</Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid size={3} alignSelf={"flex-end"} display={"flex"} justifyContent={"flex-end"}>
-                <Button variant="outlined" startIcon={<Settings />} size={isMobile ? "small" : "medium"}>
-                  Setup
-                </Button>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
+        <ComputerCard 
+          deviceStatus={metrics.device_status}
+          hostStatus={metrics.host_status}
+          showActions={true}
+        />
       </Grid>
     </Container>
   );

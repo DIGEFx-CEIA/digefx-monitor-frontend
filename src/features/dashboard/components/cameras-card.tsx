@@ -23,6 +23,7 @@ interface CamerasCardProps {
   onAddCamera?: () => void;
   onEditCamera?: (cameraId: number) => void;
   onDeleteCamera?: (cameraId: number) => void;
+  onManageAlerts?: (cameraId: number) => void;
   showActions?: boolean;
 }
 
@@ -33,15 +34,17 @@ export function CamerasCard({
   onAddCamera,
   onEditCamera,
   onDeleteCamera,
+  onManageAlerts,
   showActions = false
 }: CamerasCardProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const paperStyle = {
-    minHeight: "140px",
+    minHeight: "400px",
     display: "flex",
     flexDirection: "column",
+    height: "100%",
   };
 
   const convertMinutesToHoursMinutes = (minutes: number): string => {
@@ -54,110 +57,121 @@ export function CamerasCard({
     <Grid size={{ xs: 12, md: 12, xl: 6 }}>
       <Paper elevation={8} sx={paperStyle}>
         {/* Header Section */}
-        <Grid container spacing={2}
-          sx={{
-            alignItems: "flex-start",
-            flexGrow: 1
-          }} p={2}>
-          <Grid size={9} display={"flex"} flexDirection={"column"} alignItems={"center"}>
-            <Typography variant={isMobile ? "h4" : "h3"}>Cameras</Typography>
-            <Typography variant="h6" color={deviceStatus?.relay1_status === "On" ? "primary" : "error"}>
-              {deviceStatus?.relay1_status ?? "Off"}
-            </Typography>
-            <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>
-              Power Timer: {convertMinutesToHoursMinutes(deviceStatus?.relay1_time ?? 0)}
-            </Typography>
+        <Box sx={{ flexShrink: 0 }}>
+          <Grid container spacing={2}
+            sx={{
+              alignItems: "flex-start",
+              flexGrow: 1
+            }} p={2}>
+            <Grid size={8} display={"flex"} flexDirection={"column"} alignItems={"center"}>
+              <Typography variant={isMobile ? "h4" : "h3"}>Cameras</Typography>
+              <Typography variant="h6" color={deviceStatus?.relay1_status === "On" ? "primary" : "error"}>
+                {deviceStatus?.relay1_status ?? "Off"}
+              </Typography>
+              <Typography variant="subtitle1" textAlign={"center"} fontWeight={"bold"}>
+                Power Timer: {convertMinutesToHoursMinutes(deviceStatus?.relay1_time ?? 0)}
+              </Typography>
+            </Grid>
+            <Grid size={4} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
+              <Image 
+                src={deviceStatus?.relay1_status === "On" ? "/camera-on.png" : "/camera-off.png"} 
+                width={isMobile ? 80 : 110} 
+                height={isMobile ? 80 : 110} 
+                alt="Cameras" 
+              />
+            </Grid>
           </Grid>
-          <Grid size={3} alignSelf={"center"} display={"flex"} justifyContent={"center"}>
-            <Image
-              src={deviceStatus?.relay1_status === "On" ? "/camera-on.png" : "/camera-off.png"}
-              width={isMobile ? 80 : 110}
-              height={isMobile ? 80 : 110}
-              alt="Camera"
-            />
-          </Grid>
-        </Grid>
+        </Box>
 
-        {/* Cameras List Section */}
-        <Grid container spacing={2} p={2}>
-          <Grid size={12}>
-            {/* Camera Management Header */}
-            {showActions && (
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6" color="text.secondary">
-                  Cameras ({cameraStatus.total_count})
-                </Typography>
-              </Box>
-            )}
+        {/* Cameras Section */}
+        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          <Grid container spacing={2} p={2} sx={{ flexGrow: 1 }}>
+            <Grid size={12} sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              {/* Camera Management Header */}
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                  <Typography variant="h6" color="text.secondary">
+                    Camera Management
+                  </Typography>
+                </Box>
 
-            <Grid container spacing={1}>
-              {cameraStatus.statuses.length === 0 ? (
-                <Grid size={12}>
+              {/* Cameras List */}
+              <Box sx={{ flexGrow: 1 }}>
+                {cameraStatus.statuses.length > 0 ? (
+                  <Grid container spacing={1}>
+                    {cameraStatus.statuses.map((camera) => (
+                      <Grid key={camera.camera_id} size={12}>
+                        <CameraItem
+                          camera={camera}
+                          publicIp={publicIp}
+                          onEdit={onEditCamera}
+                          onDelete={onDeleteCamera}
+                          onManageAlerts={onManageAlerts}
+                          showActions={showActions}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
                   <Box
                     display="flex"
                     flexDirection="column"
                     alignItems="center"
                     justifyContent="center"
-                    py={4}
-                    sx={{ opacity: 0.6 }}
+                    sx={{ 
+                      minHeight: 120,
+                      textAlign: 'center',
+                      color: 'text.secondary'
+                    }}
                   >
-                    <Typography variant="body2" color="text.secondary">
+                    <VideoSettings sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
+                    <Typography variant="body2" sx={{ mb: 2 }}>
                       No cameras configured
                     </Typography>
-                    {showActions && (
+                    {showActions && onAddCamera && (
                       <Button
-                        variant="text"
-                        startIcon={<Add />}
+                        variant="outlined"
                         size="small"
+                        startIcon={<Add />}
                         onClick={onAddCamera}
-                        sx={{ mt: 1 }}
                       >
-                        Add first camera
+                        Add First Camera
                       </Button>
                     )}
                   </Box>
-                </Grid>
-              ) : (
-                cameraStatus.statuses.map((camera) => (
-                  <CameraItem
-                    key={camera.camera_id}
-                    camera={camera}
-                    publicIp={publicIp}
-                    onEdit={onEditCamera}
-                    onDelete={onDeleteCamera}
-                    showActions={showActions}
-                  />
-                ))
-              )}
-            </Grid>
-          </Grid>
+                )}
+              </Box>
 
-          {/* Actions Section */}
-          <Grid size={12}>
-            <Divider sx={{ my: 1 }} />
-            <Box display="flex" justifyContent="flex-end" gap={2}>
-              {showActions && (
-              <Button
-                variant="contained"
-                startIcon={<Add />}
-                size="small"
-                onClick={onAddCamera}
+              {/* Actions Section */}
+              <Box sx={{ mt: 'auto' }}>
+                <Divider sx={{ my: 1 }} />
+                <Box display="flex" justifyContent="flex-end" gap={2}>
+                  {showActions && (
+
+                  <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<Add />}
+                  onClick={onAddCamera}
+                  disabled={!onAddCamera}
                 >
                   Add Camera
-                </Button>
-              )}
-              <Link href={`http://${publicIp}:5000`} target="_blank" rel="noopener noreferrer">
-                <Button
-                  variant="outlined"
-                  startIcon={<VideoSettings />}
-                  size={isMobile ? "small" : "medium"}
-                >
-                  Acess Frigate
-                </Button>
-              </Link>
-            </Box>
+                </Button>)}
+                    <Button
+                      variant="outlined"
+                      startIcon={<VideoSettings />}
+                      size={isMobile ? "small" : "medium"}
+                      component={Link}
+                      href={`http://${publicIp}:5000`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Frigate
+                  </Button>
+                </Box>
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
+        </Box>
       </Paper>
     </Grid>
   );
