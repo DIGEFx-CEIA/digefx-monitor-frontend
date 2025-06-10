@@ -217,7 +217,7 @@ export function EditCameraModal({ open, onClose, onSuccess, camera }: EditCamera
       onClose={handleClose}
       maxWidth="md"
       fullWidth
-      sx={{ mt: 4 }}
+      sx={{ mt: 6 }}
     >
       <DialogTitle>
         <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
