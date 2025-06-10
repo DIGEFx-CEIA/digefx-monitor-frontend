@@ -20,6 +20,22 @@ import {
 import { useState, useEffect } from "react";
 import { createCameraAction, CreateCameraData } from "../actions/createCamera.action";
 import { getAlertTypesAction, AlertType } from "../actions/getAlertTypes.action";
+// Icon imports for alert types
+import {
+  Construction,
+  PanTool,
+  AirlineSeatReclineNormal,
+  SmokingRooms,
+  PhoneAndroid,
+  Warning,
+  Security,
+  LocalPolice,
+  HealthAndSafety,
+  Shield,
+  Error,
+  ReportProblem,
+  NotificationImportant,
+} from '@mui/icons-material';
 
 interface AddCameraModalProps {
   open: boolean;
@@ -39,6 +55,29 @@ const initialFormData: CameraFormData = {
   ip_address: "",
   port: "80",
   enabled_alerts: []
+};
+
+// Helper function to get icon component from name
+const getIconComponent = (iconName?: string) => {
+  if (!iconName) return Warning;
+  
+  const iconMap: { [key: string]: React.ComponentType } = {
+    Construction,
+    FrontHand: PanTool,
+    AirlineSeatReclineNormal,
+    SmokingRooms,
+    PhoneAndroid,
+    Warning,
+    Security,
+    LocalPolice,
+    HealthAndSafety,
+    Gpp: Shield,
+    Error,
+    ReportProblem,
+    NotificationImportant,
+  };
+  
+  return iconMap[iconName] || Warning;
 };
 
 export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps) {
@@ -286,23 +325,36 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
                                 size="small"
                               />
                               <Box flex={1}>
-                                <Typography 
-                                  variant="subtitle2" 
-                                  sx={{ 
-                                    fontWeight: 'bold',
-                                    color: isEnabled ? 'primary.main' : 'text.primary',
-                                    mb: 0.5
-                                  }}
-                                >
-                                  {alertType.name}
-                                </Typography>
+                                <Box display="flex" alignItems="center" gap={1} sx={{ mb: 0.5 }}>
+                                  {(() => {
+                                    const IconComponent = getIconComponent(alertType.icon);
+                                    return (
+                                      <IconComponent 
+                                        sx={{ 
+                                          fontSize: 18,
+                                          color: isEnabled ? 'primary.main' : 'text.secondary'
+                                        }} 
+                                      />
+                                    );
+                                  })()}
+                                  <Typography 
+                                    variant="subtitle2" 
+                                    sx={{ 
+                                      fontWeight: 'bold',
+                                      color: isEnabled ? 'primary.main' : 'text.primary'
+                                    }}
+                                  >
+                                    {alertType.name}
+                                  </Typography>
+                                </Box>
                                 {alertType.description && (
                                   <Typography 
                                     variant="caption" 
                                     color="text.secondary"
                                     sx={{ 
                                       display: 'block',
-                                      lineHeight: 1.3
+                                      lineHeight: 1.3,
+                                      ml: 3 // Indent description to align with text
                                     }}
                                   >
                                     {alertType.description}

@@ -127,16 +127,6 @@ export function CamerasCard({
                     <Typography variant="body2" sx={{ mb: 2 }}>
                       No cameras configured
                     </Typography>
-                    {showActions && onAddCamera && (
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<Add />}
-                        onClick={onAddCamera}
-                      >
-                        Add First Camera
-                      </Button>
-                    )}
                   </Box>
                 )}
               </Box>
