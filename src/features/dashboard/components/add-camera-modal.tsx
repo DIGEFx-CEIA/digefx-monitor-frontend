@@ -184,7 +184,7 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
       } else {
         setError(result.error);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Error creating camera:", err);
       setError(err instanceof Error ? err.message : "An unexpected error occurred");
     } finally {
@@ -306,11 +306,11 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
                             sx={{ 
                               p: 2,
                               border: '1px solid',
-                              borderColor: isEnabled ? 'primary.main' : 'divider',
+                              borderColor: isEnabled ?  'primary.main' : 'divider',
                               transition: 'all 0.2s ease-in-out',
                               cursor: 'pointer',
                               '&:hover': {
-                                borderColor: isEnabled ? 'primary.dark' : 'text.secondary',
+                                borderColor: isEnabled ?  'primary.main' : 'text.secondary',
                                 elevation: 4
                               }
                             }}
@@ -321,7 +321,6 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
                                 checked={isEnabled}
                                 onChange={() => handleAlertToggle(alertType.code)}
                                 disabled={loading}
-                                color="primary"
                                 size="small"
                               />
                               <Box flex={1}>
@@ -332,7 +331,10 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
                                       <IconComponent 
                                         sx={{ 
                                           fontSize: 18,
-                                          color: isEnabled ? 'primary.main' : 'text.secondary'
+                                          color: isEnabled 
+                                            ? alertType.color || 'primary.main' 
+                                            : 'text.secondary',
+                                          transition: 'color 0.2s ease-in-out'
                                         }} 
                                       />
                                     );
@@ -341,7 +343,6 @@ export function AddCameraModal({ open, onClose, onSuccess }: AddCameraModalProps
                                     variant="subtitle2" 
                                     sx={{ 
                                       fontWeight: 'bold',
-                                      color: isEnabled ? 'primary.main' : 'text.primary'
                                     }}
                                   >
                                     {alertType.name}
