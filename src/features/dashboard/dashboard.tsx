@@ -7,9 +7,11 @@ import dynamic from "next/dynamic";
 
 import { LocationData } from "./actions/getTodayLocations.action";
 import { MetricResponse, CameraStatusResponse } from "./models/metric";
+import { getCameraAction } from "./actions/getCamera.action";
 import { CamerasCard } from "./components/cameras-card";
 import { ComputerCard } from "./components/computer-card";
 import { AddCameraModal } from "./components/add-camera-modal";
+import { EditCameraModal } from "./components/edit-camera-modal";
 import { DeleteCameraModal } from './components/delete-camera-modal';
 
 // Import do VehicleMap de forma dinâmica para evitar problemas de SSR com Leaflet
@@ -41,6 +43,14 @@ export default function Dashboard({
   const [localTime, setLocalTime] = useState("");
   const [localDate, setLocalDate] = useState("");
   const [addCameraModalOpen, setAddCameraModalOpen] = useState(false);
+  const [editCameraModalOpen, setEditCameraModalOpen] = useState(false);
+  const [cameraToEdit, setCameraToEdit] = useState<{
+    id: number;
+    name: string;
+    ip_address: string;
+    port: number;
+    enabled_alerts: string[];
+  } | null>(null);
   const [deleteCameraModalOpen, setDeleteCameraModalOpen] = useState(false);
   const [cameraToDelete, setCameraToDelete] = useState<{
     id: number;
@@ -62,9 +72,48 @@ export default function Dashboard({
     setAddCameraModalOpen(true);
   };
 
-  const handleEditCamera = (cameraId: number) => {
-    console.log("Edit camera:", cameraId);
-    // TODO: Implement edit camera functionality
+  const handleEditCamera = async (cameraId: number) => {
+    try {
+      const result = await getCameraAction(cameraId);
+      if (result.success) {
+        setCameraToEdit({
+          id: result.value.id,
+          name: result.value.name,
+          ip_address: result.value.ip_address,
+          port: result.value.port,
+          enabled_alerts: result.value.enabled_alerts
+        });
+        setEditCameraModalOpen(true);
+      } else {
+        console.error("Failed to fetch camera data:", result.error);
+        // Fallback to using status data
+        const camera = cameraStatus?.statuses.find(c => c.camera_id === cameraId);
+        if (camera) {
+          setCameraToEdit({
+            id: camera.camera_id,
+            name: camera.camera_name,
+            ip_address: camera.camera_ip,
+            port: camera.camera_port,
+            enabled_alerts: [] // Empty array as fallback
+          });
+          setEditCameraModalOpen(true);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching camera data:", error);
+      // Fallback to using status data
+      const camera = cameraStatus?.statuses.find(c => c.camera_id === cameraId);
+      if (camera) {
+        setCameraToEdit({
+          id: camera.camera_id,
+          name: camera.camera_name,
+          ip_address: camera.camera_ip,
+          port: camera.camera_port,
+          enabled_alerts: [] // Empty array as fallback
+        });
+        setEditCameraModalOpen(true);
+      }
+    }
   };
 
   const handleDeleteCamera = (cameraId: number) => {
@@ -110,6 +159,11 @@ export default function Dashboard({
   const handleCloseDeleteModal = () => {
     setDeleteCameraModalOpen(false);
     setCameraToDelete(null);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditCameraModalOpen(false);
+    setCameraToEdit(null);
   };
 
   // Atualiza a data e hora local a cada segundo
@@ -244,6 +298,14 @@ export default function Dashboard({
         open={addCameraModalOpen}
         onClose={() => setAddCameraModalOpen(false)}
         onSuccess={handleCameraAdded}
+      />
+
+      {/* Edit Camera Modal */}
+      <EditCameraModal
+        open={editCameraModalOpen}
+        onClose={handleCloseEditModal}
+        onSuccess={handleCameraAdded}
+        camera={cameraToEdit}
       />
 
       <DeleteCameraModal
