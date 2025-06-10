@@ -10,6 +10,7 @@ import { MetricResponse, CameraStatusResponse } from "./models/metric";
 import { CamerasCard } from "./components/cameras-card";
 import { ComputerCard } from "./components/computer-card";
 import { AddCameraModal } from "./components/add-camera-modal";
+import { DeleteCameraModal } from './components/delete-camera-modal';
 
 // Import do VehicleMap de forma dinâmica para evitar problemas de SSR com Leaflet
 const VehicleMap = dynamic(() => import("./components/vehicle-map"), {
@@ -26,12 +27,26 @@ interface IMetric {
 
 interface IMetricWithCamera extends IMetric {
   cameraStatus: CameraStatusResponse;
+  onRefreshData?: () => Promise<void>;
+  onRefreshCameras?: () => Promise<void>;
 }
 
-export default function Dashboard({ metrics, locations, cameraStatus }: IMetricWithCamera) {
+export default function Dashboard({ 
+  metrics, 
+  locations, 
+  cameraStatus, 
+  onRefreshData, 
+  onRefreshCameras 
+}: IMetricWithCamera) {
   const [localTime, setLocalTime] = useState("");
   const [localDate, setLocalDate] = useState("");
   const [addCameraModalOpen, setAddCameraModalOpen] = useState(false);
+  const [deleteCameraModalOpen, setDeleteCameraModalOpen] = useState(false);
+  const [cameraToDelete, setCameraToDelete] = useState<{
+    id: number;
+    name: string;
+    ip_address: string;
+  } | null>(null);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -47,26 +62,54 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
     setAddCameraModalOpen(true);
   };
 
-  const handleAddCameraSuccess = () => {
-    console.log("Camera added successfully!");
-    // TODO: Refresh camera list or show success message
-    // This could trigger a page refresh or update the camera status
-    window.location.reload(); // Temporary solution - ideally should update state
-  };
-
   const handleEditCamera = (cameraId: number) => {
     console.log("Edit camera:", cameraId);
-    // TODO: Implement edit camera modal
+    // TODO: Implement edit camera functionality
   };
 
   const handleDeleteCamera = (cameraId: number) => {
-    console.log("Delete camera:", cameraId);
-    // TODO: Implement delete camera confirmation
+    // Find the camera to delete
+    const camera = cameraStatus?.statuses.find(c => c.camera_id === cameraId);
+    if (camera) {
+      setCameraToDelete({
+        id: camera.camera_id,
+        name: camera.camera_name,
+        ip_address: camera.camera_ip
+      });
+      setDeleteCameraModalOpen(true);
+    }
   };
 
   const handleManageAlerts = (cameraId: number) => {
     console.log("Manage alerts for camera:", cameraId);
-    // TODO: Implement alert management modal
+    // TODO: Implement alert management functionality
+  };
+
+  const handleCameraAdded = async () => {
+    // Use the refresh function passed as prop, fallback to reload if not available
+    if (onRefreshCameras) {
+      await onRefreshCameras();
+    } else if (onRefreshData) {
+      await onRefreshData();
+    } else {
+      window.location.reload();
+    }
+  };
+
+  const handleCameraDeleted = async () => {
+    // Use the refresh function passed as prop, fallback to reload if not available
+    if (onRefreshCameras) {
+      await onRefreshCameras();
+    } else if (onRefreshData) {
+      await onRefreshData();
+    } else {
+      window.location.reload();
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setDeleteCameraModalOpen(false);
+    setCameraToDelete(null);
   };
 
   // Atualiza a data e hora local a cada segundo
@@ -200,7 +243,14 @@ export default function Dashboard({ metrics, locations, cameraStatus }: IMetricW
       <AddCameraModal
         open={addCameraModalOpen}
         onClose={() => setAddCameraModalOpen(false)}
-        onSuccess={handleAddCameraSuccess}
+        onSuccess={handleCameraAdded}
+      />
+
+      <DeleteCameraModal
+        open={deleteCameraModalOpen}
+        onClose={handleCloseDeleteModal}
+        onSuccess={handleCameraDeleted}
+        camera={cameraToDelete}
       />
     </Container>
   );

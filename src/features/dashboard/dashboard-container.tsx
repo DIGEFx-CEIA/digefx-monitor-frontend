@@ -49,6 +49,20 @@ export default function DashboardContainer({ initialMetrics }: { initialMetrics:
     }
   }
 
+  // Função para refresh all data (exposed to Dashboard)
+  const refreshData = async () => {
+    await Promise.all([
+      fetchMetrics(),
+      fetchCameraStatus(),
+      fetchTodayLocations()
+    ]);
+  };
+
+  // Função específica para refresh apenas das câmeras (mais eficiente)
+  const refreshCameraStatus = async () => {
+    await fetchCameraStatus();
+  };
+
   useEffect(() => {
     // Define o polling para cada 10 segundos
     const interval = setInterval(() => {
@@ -65,5 +79,13 @@ export default function DashboardContainer({ initialMetrics }: { initialMetrics:
     return () => clearInterval(interval);
   }, []);
 
-  return <Dashboard metrics={metrics} locations={locations} cameraStatus={cameraStatus} />;
+  return (
+    <Dashboard 
+      metrics={metrics} 
+      locations={locations} 
+      cameraStatus={cameraStatus}
+      onRefreshData={refreshData}
+      onRefreshCameras={refreshCameraStatus}
+    />
+  );
 }
