@@ -26,7 +26,7 @@ export function Sidebar({ open, isMobile, toggleSidebar }: SidebarProps) {
     <Box sx={{ overflow: 'auto' }}>
       {isMobile && (
         <Box display="flex" justifyContent="flex-end" p={1}>
-          <IconButton onClick={toggleSidebar} aria-label="fechar menu">
+          <IconButton onClick={toggleSidebar} aria-label="close menu">
             <CloseIcon />
           </IconButton>
         </Box>

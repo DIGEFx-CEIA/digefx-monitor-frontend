@@ -13,6 +13,7 @@ import { ComputerCard } from "./components/computer-card";
 import { AddCameraModal } from "./components/add-camera-modal";
 import { EditCameraModal } from "./components/edit-camera-modal";
 import { DeleteCameraModal } from './components/delete-camera-modal';
+import AlertManagementModal from './components/alert-management-modal';
 
 // Import do VehicleMap de forma dinâmica para evitar problemas de SSR com Leaflet
 const VehicleMap = dynamic(() => import("./components/vehicle-map"), {
@@ -56,6 +57,11 @@ export default function Dashboard({
     id: number;
     name: string;
     ip_address: string;
+  } | null>(null);
+  const [alertManagementModalOpen, setAlertManagementModalOpen] = useState(false);
+  const [cameraForAlerts, setCameraForAlerts] = useState<{
+    id: number;
+    name: string;
   } | null>(null);
 
   const theme = useTheme();
@@ -130,8 +136,15 @@ export default function Dashboard({
   };
 
   const handleManageAlerts = (cameraId: number) => {
-    console.log("Manage alerts for camera:", cameraId);
-    // TODO: Implement alert management functionality
+    // Find the camera for alert management
+    const camera = cameraStatus?.statuses.find(c => c.camera_id === cameraId);
+    if (camera) {
+      setCameraForAlerts({
+        id: camera.camera_id,
+        name: camera.camera_name
+      });
+      setAlertManagementModalOpen(true);
+    }
   };
 
   const handleCameraAdded = async () => {
@@ -164,6 +177,11 @@ export default function Dashboard({
   const handleCloseEditModal = () => {
     setEditCameraModalOpen(false);
     setCameraToEdit(null);
+  };
+
+  const handleCloseAlertModal = () => {
+    setAlertManagementModalOpen(false);
+    setCameraForAlerts(null);
   };
 
   // Atualiza a data e hora local a cada segundo
@@ -313,6 +331,14 @@ export default function Dashboard({
         onClose={handleCloseDeleteModal}
         onSuccess={handleCameraDeleted}
         camera={cameraToDelete}
+      />
+
+      {/* Alert Management Modal */}
+      <AlertManagementModal
+        open={alertManagementModalOpen}
+        onClose={handleCloseAlertModal}
+        cameraId={cameraForAlerts?.id || 0}
+        cameraName={cameraForAlerts?.name || ''}
       />
     </Container>
   );
