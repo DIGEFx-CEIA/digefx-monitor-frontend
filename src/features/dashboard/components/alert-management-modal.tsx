@@ -27,7 +27,9 @@ import {
   CircularProgress,
   Alert,
   Divider,
-  Stack
+  Stack,
+  useTheme,
+  useMediaQuery
 } from '@mui/material'
 import {
   Close as CloseIcon,
@@ -88,6 +90,10 @@ export default function AlertManagementModal({
   cameraId,
   cameraName
 }: AlertManagementModalProps) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'))
+  
   const [alerts, setAlerts] = useState<CameraAlertResponse[]>([])
   const [alertTypes, setAlertTypes] = useState<AlertType[]>([])
   const [loading, setLoading] = useState(false)
@@ -221,12 +227,19 @@ export default function AlertManagementModal({
       onClose={onClose}
       maxWidth="lg"
       fullWidth
-      sx={{ mt: 6 }}
+      fullScreen={isMobile}
+      PaperProps={{
+        sx: { 
+          minHeight: isMobile ? '100vh' : '80vh',
+          maxHeight: isMobile ? '100vh' : '90vh',
+          m: isMobile ? 0 : 2
+        }
+      }}
     >
       <DialogTitle>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box>
-            <Typography variant="h6">
+            <Typography variant={isMobile ? "h6" : "h5"}>
               Alert Management
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -241,14 +254,14 @@ export default function AlertManagementModal({
 
       <DialogContent>
         {/* Estatísticas */}
-        <Paper sx={{ p: 2, mb: 3 }}>
+        <Paper sx={{ p: isMobile ? 1.5 : 2, mb: 3 }}>
           <Typography variant="h6" gutterBottom>
             Statistics
           </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={3}>
+          <Grid container spacing={isMobile ? 1 : 2}>
+            <Grid item xs={6} sm={3}>
               <Box textAlign="center">
-                <Typography variant="h4" color="primary">
+                <Typography variant={isMobile ? "h5" : "h4"} color="primary">
                   {stats.total}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -256,9 +269,9 @@ export default function AlertManagementModal({
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={6} sm={3}>
               <Box textAlign="center">
-                <Typography variant="h4" color="warning.main">
+                <Typography variant={isMobile ? "h5" : "h4"} color="warning.main">
                   {stats.active}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -266,9 +279,9 @@ export default function AlertManagementModal({
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={6} sm={3}>
               <Box textAlign="center">
-                <Typography variant="h4" color="success.main">
+                <Typography variant={isMobile ? "h5" : "h4"} color="success.main">
                   {stats.resolved}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -276,12 +289,12 @@ export default function AlertManagementModal({
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={6} sm={3}>
               <Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
+                <Typography variant="body2" color="text.secondary" gutterBottom textAlign={isMobile ? "center" : "left"}>
                   By Severity
                 </Typography>
-                <Stack spacing={0.5}>
+                <Stack spacing={0.5} alignItems={isMobile ? "center" : "flex-start"}>
                   {Object.entries(stats.bySeverity).map(([severity, count]) => (
                     <Box key={severity} display="flex" alignItems="center" gap={1}>
                       <Box 
@@ -302,7 +315,7 @@ export default function AlertManagementModal({
         </Paper>
 
         {/* Filtros */}
-        <Paper sx={{ p: 2, mb: 3 }}>
+        <Paper sx={{ p: isMobile ? 1.5 : 2, mb: 3 }}>
           <Box display="flex" alignItems="center" gap={1} mb={2}>
             <FilterIcon />
             <Typography variant="h6">
@@ -361,7 +374,7 @@ export default function AlertManagementModal({
         </Paper>
 
         {/* Lista de Alertas */}
-        <Paper sx={{ p: 2 }}>
+        <Paper sx={{ p: isMobile ? 1.5 : 2 }}>
           <Typography variant="h6" gutterBottom>
             Alerts ({alerts.length})
           </Typography>
@@ -383,57 +396,68 @@ export default function AlertManagementModal({
               </Typography>
             </Box>
           ) : (
-            <List>
+            <List sx={{ p: 0 }}>
               {alerts.map((alert) => (
                 <Box key={alert.id}>
-                  <ListItem
+                  <Paper
+                    elevation={1}
                     sx={{
+                      p: isMobile ? 1.5 : 2,
+                      mb: 1.5,
+                      bgcolor: alert.resolved ? 'action.hover' : 'background.paper',
                       border: 1,
-                      borderColor: 'divider',
-                      borderRadius: 1,
-                      mb: 1,
-                      bgcolor: alert.resolved ? 'action.hover' : 'background.paper'
+                      borderColor: 'divider'
                     }}
                   >
-                    <Box display="flex" alignItems="center" gap={2} width="100%">
+                    <Stack 
+                      direction={isMobile ? "column" : "row"} 
+                      spacing={2} 
+                      alignItems={isMobile ? "flex-start" : "center"}
+                      width="100%"
+                    >
+                      {/* Ícone de Severidade */}
                       <Box 
                         color={severityColors[alert.severity as SeverityLevel]}
                         display="flex"
                         alignItems="center"
+                        sx={{ minWidth: 24 }}
                       >
-                        {getSeverityIcon(alert.severity)}
+                        {getSeverityIcon(alert.severity || 'medium')}
                       </Box>
                       
-                      <Box flexGrow={1}>
-                        <Box display="flex" alignItems="center" gap={1} mb={1}>
+                      {/* Conteúdo Principal */}
+                      <Box flexGrow={1} width="100%">
+                        <Stack direction={isMobile ? "column" : "row"} spacing={1} alignItems={isMobile ? "flex-start" : "center"} mb={1}>
                           <Typography variant="subtitle1" fontWeight="medium">
                             {alert.alert_type_name}
                           </Typography>
-                          <Chip
-                            label={alert.severity}
-                            size="small"
-                            sx={{
-                              bgcolor: severityColors[alert.severity as SeverityLevel],
-                              color: 'white',
-                              fontSize: '0.75rem'
-                            }}
-                          />
-                          {alert.resolved && (
+                          <Box display="flex" gap={1} flexWrap="wrap">
                             <Chip
-                              icon={<CheckCircleIcon />}
-                              label="Resolved"
+                              label={alert.severity}
                               size="small"
-                              color="success"
-                              variant="outlined"
+                              sx={{
+                                bgcolor: severityColors[alert.severity as SeverityLevel],
+                                color: 'white',
+                                fontSize: '0.75rem'
+                              }}
                             />
-                          )}
-                        </Box>
+                            {alert.resolved && (
+                              <Chip
+                                icon={<CheckCircleIcon />}
+                                label="Resolved"
+                                size="small"
+                                color="success"
+                                variant="outlined"
+                              />
+                            )}
+                          </Box>
+                        </Stack>
                         
-                        <Typography variant="body2" color="text.secondary" mb={1}>
-                          {alert.message}
-                        </Typography>
-                        
-                        <Box display="flex" alignItems="center" gap={2}>
+                        <Stack 
+                          direction={isMobile ? "column" : "row"} 
+                          spacing={isMobile ? 0.5 : 2}
+                          alignItems={isMobile ? "flex-start" : "center"}
+                        >
                           <Box display="flex" alignItems="center" gap={0.5}>
                             <ScheduleIcon fontSize="small" color="action" />
                             <Typography variant="caption" color="text.secondary">
@@ -448,15 +472,23 @@ export default function AlertManagementModal({
                               </Typography>
                             </Box>
                           )}
-                        </Box>
+                        </Stack>
                       </Box>
 
+                      {/* Botão de Ação */}
                       {!alert.resolved && (
-                        <Box>
+                        <Box 
+                          sx={{ 
+                            alignSelf: isMobile ? "flex-end" : "center", 
+                            mt: isMobile ? 1 : 0,
+                            width: isMobile ? "100%" : "auto"
+                          }}
+                        >
                           <Button
                             variant="contained"
                             color="success"
                             size="small"
+                            fullWidth={isMobile}
                             startIcon={resolving.has(alert.id) ? <CircularProgress size={16} /> : <CheckIcon />}
                             onClick={() => handleResolveAlert(alert.id)}
                             disabled={resolving.has(alert.id)}
@@ -465,8 +497,8 @@ export default function AlertManagementModal({
                           </Button>
                         </Box>
                       )}
-                    </Box>
-                  </ListItem>
+                    </Stack>
+                  </Paper>
                 </Box>
               ))}
             </List>
@@ -474,8 +506,8 @@ export default function AlertManagementModal({
         </Paper>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose}>
+      <DialogActions sx={{ p: isMobile ? 2 : 3 }}>
+        <Button onClick={onClose} fullWidth={isMobile}>
           Close
         </Button>
       </DialogActions>
