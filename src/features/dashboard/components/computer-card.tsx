@@ -1,6 +1,6 @@
 "use client";
 
-import { DeviceThermostat, Memory, Public, SdStorage, Settings, Wifi } from "@mui/icons-material";
+import { DeviceThermostat, Memory, Public, SdStorage, Settings, Wifi, Terminal } from "@mui/icons-material";
 import { 
   Button, 
   Grid2 as Grid, 
@@ -11,8 +11,10 @@ import {
   Box,
   Divider
 } from "@mui/material";
+import { useState } from "react";
 import Image from "next/image";
 import { DeviceMetric, HostMetric } from "../models/metric";
+import TerminalInterface from "../../terminal/components/terminal-interface";
 
 interface ComputerCardProps {
   deviceStatus: DeviceMetric;
@@ -29,6 +31,7 @@ export function ComputerCard({
 }: ComputerCardProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [terminalOpen, setTerminalOpen] = useState(false);
 
   type StatusColor = "success" | "warning" | "error";
 
@@ -167,7 +170,16 @@ export function ComputerCard({
               {/* Actions Section */}
               <Box sx={{ mt: 'auto' }}>
                 <Divider sx={{ my: 1 }} />
-                <Box display="flex" justifyContent="flex-end">
+                <Box display="flex" justifyContent="flex-end" gap={1}>
+                  <Button 
+                    variant="outlined" 
+                    startIcon={<Terminal />} 
+                    size={isMobile ? "small" : "medium"}
+                    onClick={() => setTerminalOpen(true)}
+                    color="primary"
+                  >
+                    Terminal
+                  </Button>
                   <Button 
                     variant="outlined" 
                     startIcon={<Settings />} 
@@ -182,6 +194,12 @@ export function ComputerCard({
           </Grid>
         </Box>
       </Paper>
+
+      {/* Terminal Interface */}
+      <TerminalInterface 
+        open={terminalOpen}
+        onClose={() => setTerminalOpen(false)}
+      />
     </Grid>
   );
 } 
