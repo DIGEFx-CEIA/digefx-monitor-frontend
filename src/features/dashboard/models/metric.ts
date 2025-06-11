@@ -34,6 +34,7 @@ export type CameraStatus = {
     camera_ip: string;
     camera_port: number;
     is_connected: boolean;
+    is_active: boolean;
     last_ping_time?: string;
     response_time_ms?: number;
     timestamp: string;

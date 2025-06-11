@@ -301,6 +301,7 @@ export default function Dashboard({
           onEditCamera={handleEditCamera}
           onDeleteCamera={handleDeleteCamera}
           onManageAlerts={handleManageAlerts}
+          onCameraUpdated={onRefreshCameras}
           showActions={true}
         />
         

@@ -24,6 +24,7 @@ interface CamerasCardProps {
   onEditCamera?: (cameraId: number) => void;
   onDeleteCamera?: (cameraId: number) => void;
   onManageAlerts?: (cameraId: number) => void;
+  onCameraUpdated?: () => void;
   showActions?: boolean;
 }
 
@@ -35,6 +36,7 @@ export function CamerasCard({
   onEditCamera,
   onDeleteCamera,
   onManageAlerts,
+  onCameraUpdated,
   showActions = false
 }: CamerasCardProps) {
   const theme = useTheme();
@@ -106,6 +108,7 @@ export function CamerasCard({
                           onEdit={onEditCamera}
                           onDelete={onDeleteCamera}
                           onManageAlerts={onManageAlerts}
+                          onCameraUpdated={onCameraUpdated}
                           showActions={showActions}
                         />
                       </Grid>
