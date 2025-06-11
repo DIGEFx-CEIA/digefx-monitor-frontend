@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -29,7 +29,8 @@ import {
   Divider,
   Stack,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  ListItemIcon
 } from '@mui/material'
 import {
   Close as CloseIcon,
@@ -39,7 +40,20 @@ import {
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
   Error as ErrorIcon,
-  Info as InfoIcon
+  Info as InfoIcon,
+  Construction,
+  PanTool,
+  AirlineSeatReclineNormal,
+  SmokingRooms,
+  PhoneAndroid,
+  Warning,
+  Security,
+  LocalPolice,
+  HealthAndSafety,
+  Shield,
+  ReportProblem,
+  NotificationImportant,
+  Error as ErrorIconType
 } from '@mui/icons-material'
 import { getCameraAlertsAction, type CameraAlertResponse } from '../actions/getCameraAlerts.action'
 import { resolveAlertAction } from '../actions/resolveAlert.action'
@@ -208,6 +222,74 @@ export default function AlertManagementModal({
     return <IconComponent />
   }
 
+  // Função para mapear nome do ícone para componente
+  const getIconComponent = (iconName?: string) => {
+    if (!iconName) return Warning;
+    
+    const iconMap: { [key: string]: React.ComponentType } = {
+      Construction,
+      FrontHand: PanTool,
+      AirlineSeatReclineNormal,
+      SmokingRooms,
+      PhoneAndroid,
+      Warning,
+      Security,
+      LocalPolice,
+      HealthAndSafety,
+      Gpp: Shield,
+      Error: ErrorIconType,
+      ReportProblem,
+      NotificationImportant,
+    };
+    
+    return iconMap[iconName] || Warning;
+  }
+
+  // Função para renderizar item do select com ícone
+  const renderAlertTypeMenuItem = (alertType: AlertType) => {
+    const IconComponent = getIconComponent(alertType.icon)
+    const iconColor = alertType.color || '#ff9800'
+    
+    return (
+      <MenuItem key={alertType.id} value={alertType.code}>
+        <Box display="flex" alignItems="center" gap={1} width="100%">
+          <Box 
+            display="flex" 
+            alignItems="center" 
+            sx={{ color: iconColor, minWidth: 24 }}
+          >
+            {React.createElement(IconComponent as any, { fontSize: 'small' })}
+          </Box>
+          <Typography>{alertType.name}</Typography>
+        </Box>
+      </MenuItem>
+    )
+  }
+
+  // Função para renderizar o valor selecionado no select
+  const renderSelectedAlertType = (value: string) => {
+    if (!value) return 'All'
+    
+    const selectedType = alertTypes.find(type => type.code === value)
+    if (!selectedType) return value
+    
+    const IconComponent = getIconComponent(selectedType.icon)
+    const iconColor = selectedType.color || '#ff9800'
+    
+    return (
+      <Box display="flex" alignItems="center" gap={1}>
+        <Box 
+          display="flex" 
+          alignItems="center" 
+          sx={{ color: iconColor, minWidth: 20 }}
+        >
+          {React.createElement(IconComponent as any, { fontSize: 'small' })}
+        </Box>
+        <Typography>{selectedType.name}</Typography>
+      </Box>
+    )
+  }
+
   useEffect(() => {
     if (open) {
       fetchAlerts()
@@ -344,13 +426,15 @@ export default function AlertManagementModal({
                   value={typeFilter}
                   label="Type"
                   onChange={(e) => setTypeFilter(e.target.value)}
+                  renderValue={(value) => renderSelectedAlertType(value as string)}
                 >
-                  <MenuItem value="">All</MenuItem>
-                  {alertTypes.map((type) => (
-                    <MenuItem key={type.id} value={type.code}>
-                      {type.name}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="">
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Box sx={{ minWidth: 24 }} />
+                      <Typography>All</Typography>
+                    </Box>
+                  </MenuItem>
+                  {alertTypes.map((type) => renderAlertTypeMenuItem(type))}
                 </Select>
               </FormControl>
             </Grid>
@@ -415,14 +499,25 @@ export default function AlertManagementModal({
                       alignItems={isMobile ? "flex-start" : "center"}
                       width="100%"
                     >
-                      {/* Ícone de Severidade */}
+                      {/* Ícone do Tipo de Alerta */}
                       <Box 
-                        color={severityColors[alert.severity as SeverityLevel]}
                         display="flex"
                         alignItems="center"
                         sx={{ minWidth: 24 }}
                       >
-                        {getSeverityIcon(alert.severity || 'medium')}
+                        {(() => {
+                          // Encontrar o tipo de alerta correspondente
+                          const alertType = alertTypes.find(type => type.code === alert.alert_type_code)
+                          const IconComponent = getIconComponent(alertType?.icon)
+                          const iconColor = alertType?.color || severityColors[alert.severity as SeverityLevel]
+                          
+                          return React.createElement(IconComponent as any, { 
+                            style: { 
+                              fontSize: '1.5rem',
+                              color: iconColor
+                            }
+                          })
+                        })()}
                       </Box>
                       
                       {/* Conteúdo Principal */}
