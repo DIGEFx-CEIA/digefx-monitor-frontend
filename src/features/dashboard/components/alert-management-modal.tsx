@@ -221,12 +221,7 @@ export default function AlertManagementModal({
       onClose={onClose}
       maxWidth="lg"
       fullWidth
-      PaperProps={{
-        sx: { 
-          minHeight: '80vh',
-          maxHeight: '90vh'
-        }
-      }}
+      sx={{ mt: 6 }}
     >
       <DialogTitle>
         <Box display="flex" justifyContent="space-between" alignItems="center">
